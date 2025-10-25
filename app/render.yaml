@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: oriilia_malayalee_rails_app
+    env: ruby
+    region: Oregon (US West)
+    plan: free
+    buildCommand: |
+      bundle install
+      bundle exec rake assets:precompile
+      bundle exec rake db:migrate
+    startCommand: bundle exec puma -C config/puma.rb
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oriilia_malayalee_postgres_db
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: enabled
+      - key: RAILS_MASTER_KEY
+        sync: false
+
+databases:
+  - name: oriilia_malayalee_postgres_db
+    plan: free
+    region: oregon

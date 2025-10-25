@@ -1,0 +1,67 @@
+<!-- Hero Section with Beautiful Image -->
+<div class="hero-section mb-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">Orillia Malayalee Association</h1>
+        <p class="lead mb-4">
+          Community of Malayalees in Orillia, Ontario – culture, celebration, and connection.
+        </p>
+        <div class="d-flex gap-2 mb-4">
+          <span class="badge bg-primary px-3 py-2">🇮🇳 Heritage</span>
+          <span class="badge bg-success px-3 py-2">🤝 Community</span>
+          <span class="badge bg-warning text-dark px-3 py-2">🎉 Culture</span>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="image-container">
+          <%= image_tag "community-hero.jpg", alt: "Community Member", 
+                        class: "img-fluid rounded-4 shadow-lg hero-image",
+                        style: "max-height: 500px; width: 100%; object-fit: cover;" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h2 class="h3 fw-semibold mb-4 text-center">
+        <i class="fas fa-calendar-star me-2 text-primary"></i>
+        Upcoming Events
+      </h2>
+      
+      <% @events.each do |event| %>
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h5 class="card-title fw-bold mb-2"><%= event.name %></h5>
+                <p class="card-text text-muted mb-2">
+                  <i class="fas fa-calendar-alt me-2"></i>
+                  <%= event.starts_at.strftime("%B %d, %Y %H:%M") %>
+                </p>
+                <p class="card-text">
+                  <span class="badge bg-primary me-2">Adult: $<%= event.adult_price_cents/100.0 %></span>
+                  <span class="badge bg-secondary">Minor: $<%= event.minor_price_cents/100.0 %></span>
+                </p>
+              </div>
+              <div class="col-md-4 text-md-end">
+                <%= link_to "Register Now", new_event_registration_path(event),
+                            class: "btn btn-success btn-lg fw-semibold" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @events.empty? %>
+        <div class="alert alert-info text-center">
+          <h5>No upcoming events at this time</h5>
+          <p class="mb-0">Check back soon for new events!</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-lg border-0">
+      <div class="card-body text-center p-5">
+        <div class="mb-4">
+          <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+        </div>
+        <h2 class="text-success fw-bold mb-3">Payment Successful!</h2>
+        <p class="lead mb-4">Thank you for your payment. Your registration has been confirmed.</p>
+        
+        <!-- Email Notification -->
+        <div class="alert alert-info mb-4">
+          <h6 class="alert-heading mb-2">
+            <i class="fas fa-envelope me-2"></i>Invoice Sent!
+          </h6>
+          <p class="mb-0 small">
+            Your invoice has been automatically sent to your email address. 
+            Check your inbox for registration details and the PDF invoice.
+          </p>
+        </div>
+        
+        <!-- Download Options (if registration is available) -->
+        <% if @registration && @event %>
+          <div class="card border-primary mb-4 success-download-card">
+            <div class="card-header bg-primary text-white text-center">
+              <h6 class="mb-0">
+                <i class="fas fa-download me-2"></i>
+                Download Your Invoice Now
+              </h6>
+            </div>
+            <div class="card-body">
+              <p class="text-center mb-3">
+                <strong>Invoice #INV-<%= @registration.id.to_s.rjust(6, '0') %></strong>
+                <br>
+                <small class="text-muted">For <%= @event.name %></small>
+              </p>
+              
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
+                              class: "btn btn-download-success w-100",
+                              download: "invoice_#{@registration.id}.pdf" do %>
+                    <i class="fas fa-file-pdf me-2"></i>
+                    Download PDF
+                  <% end %>
+                </div>
+                <div class="col-md-6">
+                  <%= link_to invoice_event_registration_path(@event, @registration), 
+                              class: "btn btn-outline-primary w-100",
+                              target: "_blank" do %>
+                    <i class="fas fa-external-link-alt me-2"></i>
+                    View Online
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="text-center">
+                <%= link_to event_registration_path(@event, @registration), 
+                            class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="fas fa-eye me-1"></i>
+                  View Full Registration Details
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <!-- Fallback when registration can't be retrieved -->
+          <div class="alert alert-warning mb-4">
+            <h6 class="alert-heading mb-2">
+              <i class="fas fa-info-circle me-2"></i>Need Your Invoice?
+            </h6>
+            <p class="mb-2 small">
+              We couldn't automatically retrieve your registration details, but don't worry!
+            </p>
+            <p class="mb-0 small">
+              <strong>Your invoice has been sent to your email</strong> or you can contact us at 
+              <a href="mailto:info@orilliamalayalee.org">info@orilliamalayalee.org</a> 
+              with your session ID: <code><%= @session_id %></code>
+            </p>
+          </div>
+        <% end %>
+        
+        <div class="d-grid gap-2">
+          <a href="<%= root_path %>" class="btn btn-success btn-lg">
+            <i class="fas fa-home me-2"></i>Back to Home
+          </a>
+          <% if @session_id %>
+            <p class="text-muted small mt-3">Session ID: <%= @session_id %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-4 text-success fw-bold">Order Summary</h3>
+
+        <ul class="list-group list-group-flush mb-3">
+          <li class="list-group-item"><strong>Name:</strong> <%= @order.member.full_name %></li>
+          <li class="list-group-item"><strong>Email:</strong> <%= @order.member.email %></li>
+          <li class="list-group-item"><strong>Adults:</strong> <%= @order.adults_count %></li>
+          <li class="list-group-item"><strong>Minors:</strong> <%= @order.minors_count %></li>
+          <li class="list-group-item fs-5"><strong>Total:</strong> <%= @order.total_money %></li>
+        </ul>
+
+        <% if @order.paid? %>
+          <div class="alert alert-success text-center fw-semibold">
+            ✅ Payment received successfully.
+          </div>
+          <div class="d-grid">
+            <a class="btn btn-outline-success btn-lg" href="<%= invoice_order_path(@order) %>">
+              Download Invoice (PDF)
+            </a>
+          </div>
+        <% else %>
+          <div class="d-grid">
+            <button id="pay-button" class="btn btn-success btn-lg fw-semibold">
+              Pay with Visa / Card
+            </button>
+          </div>
+          <p class="text-muted mt-2 text-center small">You’ll be redirected to a secure Stripe checkout page.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("pay-button");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const resp = await fetch("/payments/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ order_id: "<%= @order.id %>" })
+    });
+
+    const data = await resp.json();
+    const stripe = Stripe(data.public_key);
+    await stripe.redirectToCheckout({ sessionId: data.id });
+  });
+});
+</script>

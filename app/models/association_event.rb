@@ -1,0 +1,2 @@
+class AssociationEvent < ApplicationRecord
+end

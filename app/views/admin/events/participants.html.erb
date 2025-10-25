@@ -1,0 +1,248 @@
+<% content_for :title, "Participants - #{@event.name}" %>
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <%= link_to admin_event_path(@event), class: "text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center mb-2" do %>
+            <i class="fas fa-arrow-left mr-2"></i>Back to Event Details
+          <% end %>
+          <h1 class="text-3xl font-bold text-gray-900">All Participants</h1>
+          <p class="text-gray-600 mt-1"><%= @event.name %></p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <div class="text-right">
+            <div class="text-sm text-gray-600">Total Participants</div>
+            <div class="text-2xl font-bold text-blue-600">
+              <%= @adult_participants.count + @minor_participants.count %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <!-- Adults Summary -->
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center">
+          <div class="p-4 bg-purple-100 rounded-full">
+            <i class="fas fa-user-tie text-purple-600 text-2xl"></i>
+          </div>
+          <div class="ml-6">
+            <h3 class="text-lg font-semibold text-gray-900">Adult Participants</h3>
+            <p class="text-3xl font-bold text-purple-600"><%= @adult_participants.count %></p>
+            <p class="text-sm text-gray-600 mt-1">
+              Total Revenue: 
+              <span class="font-medium text-green-600">
+                <%= number_to_currency(@adult_participants.count * @event.adult_price, unit: "CAD $") %>
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minors Summary -->
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center">
+          <div class="p-4 bg-orange-100 rounded-full">
+            <i class="fas fa-child text-orange-600 text-2xl"></i>
+          </div>
+          <div class="ml-6">
+            <h3 class="text-lg font-semibold text-gray-900">Minor Participants</h3>
+            <p class="text-3xl font-bold text-orange-600"><%= @minor_participants.count %></p>
+            <p class="text-sm text-gray-600 mt-1">
+              Total Revenue: 
+              <span class="font-medium text-green-600">
+                <%= number_to_currency(@minor_participants.count * @event.minor_price, unit: "CAD $") %>
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Participants Lists -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Adult Participants -->
+      <div class="bg-white rounded-xl shadow-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+            <i class="fas fa-user-tie text-purple-600 mr-3"></i>
+            Adult Participants (<%= @adult_participants.count %>)
+          </h2>
+        </div>
+        <div class="p-6">
+          <% if @adult_participants.any? %>
+            <div class="space-y-4">
+              <% @adult_participants.each_with_index do |participant, index| %>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <span class="text-purple-600 font-semibold text-sm"><%= index + 1 %></span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-900">
+                        <%= participant.first_name %> <%= participant.last_name %>
+                      </p>
+                      <div class="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                        <span>
+                          <i class="fas fa-birthday-cake mr-1"></i>
+                          Age <%= Date.current.year - participant.dob.year %>
+                        </span>
+                        <span>
+                          <i class="fas fa-calendar mr-1"></i>
+                          <%= participant.dob.strftime("%b %d, %Y") %>
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-user-edit mr-1"></i>
+                        Registered by: <%= participant.registration.first_name %> <%= participant.registration.last_name %>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-lg font-bold text-green-600">
+                      <%= number_to_currency(@event.adult_price, unit: "CAD $") %>
+                    </p>
+                    <p class="text-xs text-gray-500">Adult Price</p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- Adult Participants Summary -->
+            <div class="mt-6 pt-4 border-t border-gray-200">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-600">Adult Participants Total:</span>
+                <span class="text-lg font-bold text-green-600">
+                  <%= number_to_currency(@adult_participants.count * @event.adult_price, unit: "CAD $") %>
+                </span>
+              </div>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <i class="fas fa-user-times text-gray-300 text-4xl mb-4"></i>
+              <p class="text-gray-500">No adult participants registered</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Minor Participants -->
+      <div class="bg-white rounded-xl shadow-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+            <i class="fas fa-child text-orange-600 mr-3"></i>
+            Minor Participants (<%= @minor_participants.count %>)
+          </h2>
+        </div>
+        <div class="p-6">
+          <% if @minor_participants.any? %>
+            <div class="space-y-4">
+              <% @minor_participants.each_with_index do |participant, index| %>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span class="text-orange-600 font-semibold text-sm"><%= index + 1 %></span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-900">
+                        <%= participant.first_name %> <%= participant.last_name %>
+                      </p>
+                      <div class="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                        <span>
+                          <i class="fas fa-birthday-cake mr-1"></i>
+                          Age <%= Date.current.year - participant.dob.year %>
+                        </span>
+                        <span>
+                          <i class="fas fa-calendar mr-1"></i>
+                          <%= participant.dob.strftime("%b %d, %Y") %>
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-user-edit mr-1"></i>
+                        Registered by: <%= participant.registration.first_name %> <%= participant.registration.last_name %>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-lg font-bold text-green-600">
+                      <%= number_to_currency(@event.minor_price, unit: "CAD $") %>
+                    </p>
+                    <p class="text-xs text-gray-500">Minor Price</p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- Minor Participants Summary -->
+            <div class="mt-6 pt-4 border-t border-gray-200">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-600">Minor Participants Total:</span>
+                <span class="text-lg font-bold text-green-600">
+                  <%= number_to_currency(@minor_participants.count * @event.minor_price, unit: "CAD $") %>
+                </span>
+              </div>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <i class="fas fa-baby text-gray-300 text-4xl mb-4"></i>
+              <p class="text-gray-500">No minor participants registered</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Summary -->
+    <div class="mt-8">
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+          <i class="fas fa-chart-bar text-blue-600 mr-3"></i>
+          Event Summary
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-blue-600">
+              <%= @adult_participants.count + @minor_participants.count %>
+            </div>
+            <div class="text-sm text-gray-600">Total Participants</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600">
+              <%= number_to_currency((@adult_participants.count * @event.adult_price) + (@minor_participants.count * @event.minor_price), unit: "CAD $") %>
+            </div>
+            <div class="text-sm text-gray-600">Total Revenue</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-purple-600">
+              <%= Registration.where(event: @event, status: "paid").count %>
+            </div>
+            <div class="text-sm text-gray-600">Paid Registrations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+  .btn {
+    @apply inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white;
+  }
+  
+  .btn-outline-primary {
+    @apply border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white;
+  }
+</style>

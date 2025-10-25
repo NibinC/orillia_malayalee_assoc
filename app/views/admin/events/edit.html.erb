@@ -1,0 +1,174 @@
+<% content_for :title, "Edit Event - #{@event.name}" %>
+
+<style>
+  .admin-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+  .form-card {
+    max-width: 800px;
+  }
+</style>
+
+<div class="admin-gradient">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-bottom">
+    <div class="container-fluid py-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="d-flex align-items-center mb-2">
+            <%= link_to admin_event_path(@event), class: "btn btn-outline-secondary btn-sm me-3" do %>
+              <i class="fas fa-arrow-left me-1"></i>Back to Event
+            <% end %>
+            <h1 class="display-6 fw-bold text-dark mb-0">✏️ Edit Event</h1>
+          </div>
+          <p class="text-muted mb-0">Update event details for <%= @event.name %></p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">Welcome back, <%= current_admin_user.email %></span>
+          <%= link_to "🏠 Website", root_path, class: "btn btn-outline-primary btn-sm" %>
+          <%= link_to "🚪 Logout", destroy_admin_user_session_path, 
+                      data: { "turbo-method": :delete }, class: "btn btn-outline-danger btn-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card form-card shadow border-0">
+          <div class="card-header bg-white border-0 pb-3">
+            <h4 class="card-title fw-bold d-flex align-items-center mb-0">
+              <i class="fas fa-calendar-edit text-warning me-3"></i>
+              Update Event Details
+            </h4>
+          </div>
+          <div class="card-body p-4">
+            <%= form_with(model: [:admin, @event], local: true, class: "needs-validation", novalidate: true) do |form| %>
+              <% if @event.errors.any? %>
+                <div class="alert alert-danger">
+                  <h6><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</h6>
+                  <ul class="mb-0">
+                    <% @event.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+
+              <div class="row g-4">
+                <!-- Event Name -->
+                <div class="col-12">
+                  <%= form.label :name, class: "form-label fw-bold" %>
+                  <%= form.text_field :name, class: "form-control", required: true %>
+                  <div class="invalid-feedback">
+                    Please provide a valid event name.
+                  </div>
+                </div>
+
+                <!-- Event Description -->
+                <div class="col-12">
+                  <%= form.label :description, class: "form-label fw-bold" %>
+                  <%= form.text_area :description, rows: 4, class: "form-control" %>
+                  <div class="form-text">Optional: Provide details about the event</div>
+                </div>
+
+                <!-- Event Date and Time -->
+                <div class="col-md-6">
+                  <%= form.label :starts_at, "Event Date & Time", class: "form-label fw-bold" %>
+                  <%= form.datetime_local_field :starts_at, class: "form-control", required: true %>
+                  <div class="invalid-feedback">
+                    Please provide a valid date and time.
+                  </div>
+                </div>
+
+                <!-- Currency -->
+                <div class="col-md-6">
+                  <%= form.label :currency, class: "form-label fw-bold" %>
+                  <%= form.select :currency, [['CAD', 'CAD'], ['USD', 'USD']], {}, { class: "form-select" } %>
+                </div>
+
+                <!-- Adult Price -->
+                <div class="col-md-6">
+                  <%= form.label :adult_price_cents, "Adult Price (cents)", class: "form-label fw-bold" %>
+                  <div class="input-group">
+                    <span class="input-group-text">¢</span>
+                    <%= form.number_field :adult_price_cents, class: "form-control", min: 0, required: true %>
+                  </div>
+                  <div class="form-text">Enter price in cents (e.g., 2500 for $25.00)</div>
+                  <div class="invalid-feedback">
+                    Please provide a valid adult price.
+                  </div>
+                </div>
+
+                <!-- Minor Price -->
+                <div class="col-md-6">
+                  <%= form.label :minor_price_cents, "Minor Price (cents)", class: "form-label fw-bold" %>
+                  <div class="input-group">
+                    <span class="input-group-text">¢</span>
+                    <%= form.number_field :minor_price_cents, class: "form-control", min: 0, required: true %>
+                  </div>
+                  <div class="form-text">Enter price in cents (e.g., 1200 for $12.00)</div>
+                  <div class="invalid-feedback">
+                    Please provide a valid minor price.
+                  </div>
+                </div>
+
+                <!-- Published -->
+                <div class="col-12">
+                  <div class="form-check">
+                    <%= form.check_box :published, class: "form-check-input" %>
+                    <%= form.label :published, "Published", class: "form-check-label fw-bold" %>
+                    <div class="form-text">Check to make this event visible to the public</div>
+                  </div>
+                </div>
+
+                <!-- Registration Info -->
+                <% if @event.registrations.any? %>
+                <div class="col-12">
+                  <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> This event has <%= pluralize(@event.registrations.count, 'registration') %>. 
+                    Be careful when modifying prices or dates as it may affect existing registrations.
+                  </div>
+                </div>
+                <% end %>
+              </div>
+
+              <div class="d-flex justify-content-between mt-5">
+                <div>
+                  <%= link_to admin_event_path(@event), class: "btn btn-outline-secondary" do %>
+                    <i class="fas fa-times me-2"></i>Cancel
+                  <% end %>
+                </div>
+                <div>
+                  <%= form.submit "Update Event", class: "btn btn-warning" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Bootstrap form validation
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>

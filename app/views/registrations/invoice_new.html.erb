@@ -1,0 +1,108 @@
+<div class="invoice-header">
+  <div class="text-center">
+    <h1 style="color: #28a745; margin-bottom: 5px;">Orillia Malayalee Association</h1>
+    <p style="color: #666; margin-bottom: 0;">Building bridges, celebrating culture, strengthening community bonds</p>
+  </div>
+</div>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+  <div>
+    <h3>Invoice Details</h3>
+    <p><strong>Invoice #:</strong> INV-<%= @registration.id.to_s.rjust(6, '0') %></p>
+    <p><strong>Date:</strong> <%= @registration.paid_at&.strftime("%B %d, %Y") || Date.current.strftime("%B %d, %Y") %></p>
+    <p><strong>Status:</strong> <span style="<%= @registration.status == 'paid' ? 'color: #28a745;' : 'color: #dc3545;' %>"><%= @registration.status.titleize %></span></p>
+  </div>
+  
+  <div>
+    <h3>Event Details</h3>
+    <p><strong><%= @event.name %></strong></p>
+    <p><%= @event.description %></p>
+    <% if @event.start_date %>
+      <p><strong>Date:</strong> <%= @event.start_date.strftime("%B %d, %Y") %></p>
+    <% end %>
+    <% if @event.location.present? %>
+      <p><strong>Location:</strong> <%= @event.location %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="invoice-details">
+  <h3>Registration Information</h3>
+  <p><strong>Registrant:</strong> <%= @registration.first_name %> <%= @registration.last_name %></p>
+  <p><strong>Email:</strong> <%= @registration.email %></p>
+  <p><strong>Registration Date:</strong> <%= @registration.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  <% if @registration.paid_at %>
+    <p><strong>Payment Date:</strong> <%= @registration.paid_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  <% end %>
+</div>
+
+<h3>Attendees</h3>
+<table>
+  <thead>
+    <tr style="background-color: #f8f9fa;">
+      <th>Name</th>
+      <th>Date of Birth</th>
+      <th>Age</th>
+      <th>Category</th>
+      <th class="text-right">Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @registration.attendees.each do |attendee| %>
+      <tr>
+        <td><%= attendee.first_name %> <%= attendee.last_name %></td>
+        <td><%= attendee.dob.strftime("%m/%d/%Y") %></td>
+        <td><%= attendee.age %> years</td>
+        <td>
+          <span style="<%= attendee.minor? ? 'color: #17a2b8;' : 'color: #28a745;' %>">
+            <%= attendee.category.titleize %>
+            <%= attendee.minor? ? '(Under 12)' : '(12+ years)' %>
+          </span>
+        </td>
+        <td class="text-right">
+          $<%= sprintf("%.2f", (attendee.minor? ? @event.minor_price_cents : @event.adult_price_cents) / 100.0) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="total-section">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <p class="mb-0">
+        <strong>Summary:</strong> 
+        <%= @registration.attendees.count { |a| !a.minor? } %> Adult(s), 
+        <%= @registration.attendees.count { |a| a.minor? } %> Minor(s)
+      </p>
+    </div>
+    <div class="text-right">
+      <h3 style="margin: 0; color: #28a745;">
+        Total: $<%= sprintf("%.2f", @registration.total_cents / 100.0) %> <%= @registration.currency.upcase %>
+      </h3>
+    </div>
+  </div>
+</div>
+
+<% if @registration.status == 'paid' %>
+  <div style="background-color: #d4edda; border: 1px solid #c3e6cb; padding: 1rem; margin-top: 2rem; border-radius: 5px;">
+    <p style="margin: 0; color: #155724;">
+      <strong>✓ Payment Confirmed</strong> - Thank you for your payment. Your registration is confirmed.
+    </p>
+    <% if @registration.stripe_payment_intent_id %>
+      <p style="margin: 5px 0 0 0; font-size: 12px; color: #155724;">
+        Payment ID: <%= @registration.stripe_payment_intent_id %>
+      </p>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="mt-4" style="border-top: 1px solid #dee2e6; padding-top: 1rem; margin-top: 2rem;">
+  <p style="font-size: 12px; color: #666; text-align: center; margin: 0;">
+    <strong>Orillia Malayalee Association</strong><br>
+    Building bridges, celebrating culture, strengthening community bonds across Ontario<br>
+    Generated on <%= Date.current.strftime("%B %d, %Y") %><br>
+    <br>
+    This invoice was automatically generated. For questions, please contact us at info@orilliamalayalee.org
+  </p>
+</div>

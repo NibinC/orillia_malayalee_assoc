@@ -1,0 +1,167 @@
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4">
+        <h2 class="text-center mb-4 text-success fw-bold">Event Registration</h2>
+
+        <%= form_with model: [@event, @registration], local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :first_name, "First Name", class: "form-label fw-semibold" %>
+            <%= f.text_field :first_name, class: "form-control", placeholder: "Enter your first name", required: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :last_name, "Last Name", class: "form-label fw-semibold" %>
+            <%= f.text_field :last_name, class: "form-control", placeholder: "Enter your last name", required: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :email, "Email Address", class: "form-label fw-semibold" %>
+            <%= f.email_field :email, class: "form-control", placeholder: "example@email.com", required: true %>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="fw-semibold mb-3">Attendees</h5>
+            <div class="alert alert-info py-2 mb-3">
+              <small><i class="fas fa-info-circle me-1"></i> 
+                <strong>Age Calculation:</strong> Category is automatically determined based on date of birth. 
+                Minors are under 12 years old, adults are 12 and older.
+              </small>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3"><small class="text-muted fw-semibold">First Name</small></div>
+              <div class="col-md-3"><small class="text-muted fw-semibold">Last Name</small></div>
+              <div class="col-md-3"><small class="text-muted fw-semibold">Date of Birth</small></div>
+              <div class="col-md-3"><small class="text-muted fw-semibold">Category (Auto-calculated)</small></div>
+            </div>
+            <div id="attendees">
+              <%= f.fields_for :attendees do |attendee_form| %>
+                <div class="row mb-3 attendee-row">
+                  <div class="col-md-4">
+                    <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name", required: true %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name", required: true %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                    <small class="text-muted age-display"></small>
+                  </div>
+                  <div class="col-md-3">
+                    <%= attendee_form.select :category, 
+                        options_for_select([['Adult (12+)', 'adult'], ['Minor (<12)', 'minor']], attendee_form.object.category),
+                        {}, { class: "form-select category-field", readonly: true, disabled: true } %>
+                    <%= attendee_form.hidden_field :category %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="add-attendee">+ Add Another Attendee</button>
+          </div>
+
+          <div class="d-grid mt-4">
+            <%= f.submit "Proceed to Summary", class: "btn btn-success btn-lg fw-semibold" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let attendeeCount = <%= @registration.attendees.length %>;
+  
+  // Function to calculate age based on date of birth
+  function calculateAge(dob) {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+  
+  // Function to update category based on age
+  function updateCategory(dobField, categorySelect, categoryHidden) {
+    if (dobField.value) {
+      const age = calculateAge(dobField.value);
+      const category = age < 12 ? 'minor' : 'adult';
+      
+      categorySelect.value = category;
+      if (categoryHidden) {
+        categoryHidden.value = category;
+      }
+      
+      // Update visual indication
+      categorySelect.className = categorySelect.className.replace(/\b(minor|adult)-category\b/g, '');
+      categorySelect.classList.add(age < 12 ? 'minor-category' : 'adult-category');
+      
+      // Display age
+      const row = dobField.closest('.attendee-row');
+      const ageDisplay = row.querySelector('.age-display');
+      if (ageDisplay) {
+        ageDisplay.textContent = `Age: ${age} years (${category})`;
+        ageDisplay.style.color = age < 12 ? '#856404' : '#0c5460';
+      }
+    }
+  }
+  
+  // Add event listeners to existing DOB fields
+  document.querySelectorAll('.dob-field').forEach(function(dobField) {
+    const row = dobField.closest('.attendee-row');
+    const categorySelect = row.querySelector('.category-field');
+    const categoryHidden = row.querySelector('input[type="hidden"][name*="[category]"]');
+    
+    dobField.addEventListener('change', function() {
+      updateCategory(dobField, categorySelect, categoryHidden);
+    });
+    
+    // Calculate on page load if DOB exists
+    if (dobField.value) {
+      updateCategory(dobField, categorySelect, categoryHidden);
+    }
+  });
+  
+  document.getElementById("add-attendee").addEventListener("click", function() {
+    const attendeesDiv = document.getElementById("attendees");
+    const newAttendeeRow = document.createElement("div");
+    newAttendeeRow.className = "row mb-3 attendee-row";
+    newAttendeeRow.innerHTML = `
+      <div class="col-md-3">
+        <input type="text" name="registration[attendees_attributes][${attendeeCount}][first_name]" class="form-control" placeholder="First Name" required>
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="registration[attendees_attributes][${attendeeCount}][last_name]" class="form-control" placeholder="Last Name" required>
+      </div>
+      <div class="col-md-3">
+        <input type="date" name="registration[attendees_attributes][${attendeeCount}][dob]" class="form-control dob-field" required>
+        <small class="text-muted age-display"></small>
+      </div>
+      <div class="col-md-3">
+        <select name="registration[attendees_attributes][${attendeeCount}][category]" class="form-select category-field" readonly disabled>
+          <option value="adult">Adult (12+)</option>
+          <option value="minor">Minor (&lt;12)</option>
+        </select>
+        <input type="hidden" name="registration[attendees_attributes][${attendeeCount}][category]" value="adult">
+      </div>
+    `;
+    attendeesDiv.appendChild(newAttendeeRow);
+    
+    // Add event listener to the new DOB field
+    const newDobField = newAttendeeRow.querySelector('.dob-field');
+    const newCategorySelect = newAttendeeRow.querySelector('.category-field');
+    const newCategoryHidden = newAttendeeRow.querySelector('input[type="hidden"][name*="[category]"]');
+    
+    newDobField.addEventListener('change', function() {
+      updateCategory(newDobField, newCategorySelect, newCategoryHidden);
+    });
+    
+    attendeeCount++;
+  });
+});
+</script>

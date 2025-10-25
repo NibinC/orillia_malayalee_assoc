@@ -1,0 +1,263 @@
+<style>
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #28a745;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #28a745;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+    }
+    
+    .invoice-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .invoice-details, .event-details {
+      flex: 1;
+      min-width: 300px;
+      margin-right: 20px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #28a745;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    
+    .detail-row {
+      margin-bottom: 8px;
+    }
+    
+    .detail-label {
+      font-weight: bold;
+      display: inline-block;
+      width: 120px;
+    }
+    
+    .attendees-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    .attendees-table th,
+    .attendees-table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    
+    .attendees-table th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+      color: #495057;
+    }
+    
+    .attendees-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    .category-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .category-adult {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .category-minor {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .total-section {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    
+    .total-final {
+      font-size: 20px;
+      font-weight: bold;
+      color: #28a745;
+      border-top: 2px solid #28a745;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .status-paid {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    
+    @media print {
+      body { margin: 0; padding: 15px; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Orillia Malayalee Association</div>
+    <div class="subtitle">Community • Culture • Celebration</div>
+  </div>
+
+  <% if @registration.status == 'paid' %>
+    <div class="status-paid">
+      ✅ PAYMENT RECEIVED - INVOICE PAID IN FULL
+    </div>
+  <% end %>
+
+  <div class="invoice-info">
+    <div class="invoice-details">
+      <div class="section-title">Invoice Details</div>
+      <div class="detail-row">
+        <span class="detail-label">Invoice #:</span>
+        INV-<%= @registration.id.to_s.rjust(6, '0') %>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Date:</span>
+        <%= @registration.created_at.strftime("%B %d, %Y") %>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Status:</span>
+        <%= @registration.status.capitalize %>
+      </div>
+      <% if @registration.status == 'paid' %>
+        <div class="detail-row">
+          <span class="detail-label">Paid Date:</span>
+          <%= @registration.updated_at.strftime("%B %d, %Y") %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="event-details">
+      <div class="section-title">Event Information</div>
+      <div class="detail-row">
+        <span class="detail-label">Event:</span>
+        <%= @event.name %>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Date & Time:</span>
+        <%= @event.starts_at.strftime("%B %d, %Y at %I:%M %p") %>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Organizer:</span>
+        Orillia Malayalee Association
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Registration Contact</div>
+  <div class="detail-row">
+    <span class="detail-label">Name:</span>
+    <%= @registration.first_name %> <%= @registration.last_name %>
+  </div>
+  <div class="detail-row">
+    <span class="detail-label">Email:</span>
+    <%= @registration.email %>
+  </div>
+
+  <div class="section-title">Registered Attendees</div>
+  <table class="attendees-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date of Birth</th>
+        <th>Age</th>
+        <th>Category</th>
+        <th style="text-align: right;">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @registration.attendees.each do |attendee| %>
+        <tr>
+          <td><%= attendee.first_name %> <%= attendee.last_name %></td>
+          <td><%= attendee.dob.strftime("%B %d, %Y") %></td>
+          <td><%= attendee.age %> years</td>
+          <td>
+            <span class="category-badge category-<%= attendee.category %>">
+              <%= attendee.category.capitalize %>
+              (<%= attendee.category == 'adult' ? '12+' : '<12' %>)
+            </span>
+          </td>
+          <td style="text-align: right;">
+            $<%= attendee.category == 'adult' ? @event.adult_price_cents/100.0 : @event.minor_price_cents/100.0 %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="total-section">
+    <div class="total-row">
+      <span>Adults (<%= @registration.attendees.count { |a| a.category == 'adult' } %> × $<%= @event.adult_price_cents/100.0 %>):</span>
+      <span>$<%= (@registration.attendees.count { |a| a.category == 'adult' } * @event.adult_price_cents/100.0) %></span>
+    </div>
+    <div class="total-row">
+      <span>Minors (<%= @registration.attendees.count { |a| a.category == 'minor' } %> × $<%= @event.minor_price_cents/100.0 %>):</span>
+      <span>$<%= (@registration.attendees.count { |a| a.category == 'minor' } * @event.minor_price_cents/100.0) %></span>
+    </div>
+    <div class="total-row total-final">
+      <span>Total Amount:</span>
+      <span>$<%= @registration.total_cents/100.0 %></span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><strong>Orillia Malayalee Association</strong></p>
+    <p>Building bridges, celebrating culture, strengthening community bonds across Ontario</p>
+    <p>Generated on <%= Date.current.strftime("%B %d, %Y") %></p>
+    <p style="font-size: 12px; color: #999;">
+      This invoice was automatically generated. For questions, please contact us at info@orilliamalayalee.org
+    </p>
+  </div>
+</body>
+</html>

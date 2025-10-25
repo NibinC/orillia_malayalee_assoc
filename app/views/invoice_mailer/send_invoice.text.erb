@@ -1,0 +1,50 @@
+ORILLIA MALAYALEE ASSOCIATION
+Registration Confirmed - Payment Received Successfully!
+
+Dear <%= @registration.first_name %> <%= @registration.last_name %>,
+
+Thank you for registering for <%= @event.name %>! We're excited to have you and your group join us for this special event.
+
+EVENT DETAILS
+=============
+Event Name: <%= @event.name %>
+Date & Time: <%= @event.starts_at.strftime("%B %d, %Y at %I:%M %p") %>
+
+REGISTRATION SUMMARY
+===================
+Invoice Number: INV-<%= @registration.id.to_s.rjust(6, '0') %>
+Registration Date: <%= @registration.created_at.strftime("%B %d, %Y") %>
+Status: Paid
+
+REGISTERED ATTENDEES
+===================
+<% @registration.attendees.each do |attendee| %>
+- <%= attendee.first_name %> <%= attendee.last_name %>
+  Born: <%= attendee.dob.strftime("%B %d, %Y") %> (Age: <%= attendee.age %> years)
+  Category: <%= attendee.category.capitalize %> (<%= attendee.category == 'adult' ? '12+' : '<12' %>)
+  Price: $<%= attendee.category == 'adult' ? @event.adult_price_cents/100.0 : @event.minor_price_cents/100.0 %>
+
+<% end %>
+
+PAYMENT SUMMARY
+===============
+Adults: <%= @registration.attendees.count { |a| a.category == 'adult' } %> × $<%= @event.adult_price_cents/100.0 %> = $<%= (@registration.attendees.count { |a| a.category == 'adult' } * @event.adult_price_cents/100.0) %>
+Minors: <%= @registration.attendees.count { |a| a.category == 'minor' } %> × $<%= @event.minor_price_cents/100.0 %> = $<%= (@registration.attendees.count { |a| a.category == 'minor' } * @event.minor_price_cents/100.0) %>
+
+TOTAL PAID: $<%= @registration.total_cents/100.0 %>
+
+WHAT'S NEXT?
+============
+- Your registration is confirmed and payment has been processed
+- Please save this email and the attached invoice for your records
+- Arrive at the event venue 15 minutes early for check-in
+- Bring a valid ID for verification if requested
+
+Questions? Contact us at info@orilliamalayalee.org
+
+---
+Orillia Malayalee Association
+Building bridges, celebrating culture, strengthening community bonds across Ontario
+
+This email was automatically generated. Please do not reply to this email address.
+For assistance, contact us at info@orilliamalayalee.org

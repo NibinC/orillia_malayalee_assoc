@@ -1,0 +1,265 @@
+<% content_for :title, "Event Details - #{@event.name}" %>
+
+<style>
+  .admin-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+  .stats-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid;
+  }
+  .stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  .stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+</style>
+
+<div class="admin-gradient">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-bottom">
+    <div class="container-fluid py-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="d-flex align-items-center mb-2">
+            <%= link_to admin_root_path, class: "btn btn-outline-secondary btn-sm me-3" do %>
+              <i class="fas fa-arrow-left me-1"></i>Back to Events
+            <% end %>
+            <h1 class="display-6 fw-bold text-dark mb-0">📅 <%= @event.name %></h1>
+          </div>
+          <p class="text-muted mb-0">
+            <i class="fas fa-calendar me-2"></i>
+            <%= @event.starts_at.strftime("%B %d, %Y at %I:%M %p") %>
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">Welcome back, <%= current_admin_user.email %></span>
+          <%= link_to "🏠 Website", root_path, class: "btn btn-outline-primary btn-sm" %>
+          <%= link_to "🚪 Logout", destroy_admin_user_session_path, 
+                      data: { "turbo-method": :delete }, class: "btn btn-outline-danger btn-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid py-5">
+    <!-- Event Statistics -->
+    <div class="row g-4 mb-5">
+      <!-- Total Revenue -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card stats-card shadow border-0 h-100" style="border-left-color: #28a745 !important;">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+              <div class="stats-icon bg-success bg-opacity-10 text-success me-3">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div>
+                <h6 class="text-muted mb-1 fw-normal">Total Revenue</h6>
+                <h3 class="fw-bold text-success mb-0">
+                  CAD $<%= (@event_revenue || 0).to_i %>
+                </h3>
+                <small class="text-muted">
+                  From <%= @paid_registrations_count %> paid registrations
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Registrations -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card stats-card shadow border-0 h-100" style="border-left-color: #007bff !important;">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+              <div class="stats-icon bg-primary bg-opacity-10 text-primary me-3">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+              <div>
+                <h6 class="text-muted mb-1 fw-normal">Total Registrations</h6>
+                <h3 class="fw-bold text-primary mb-0"><%= @paid_registrations_count %></h3>
+                <small class="text-muted">
+                  Paid and confirmed registrations
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Adult Participants -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card stats-card shadow border-0 h-100" style="border-left-color: #6f42c1 !important;">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+              <div class="stats-icon bg-info bg-opacity-10 text-info me-3">
+                <i class="fas fa-user-tie"></i>
+              </div>
+              <div>
+                <h6 class="text-muted mb-1 fw-normal">Adult Participants</h6>
+                <h3 class="fw-bold text-info mb-0"><%= @total_adults %></h3>
+                <small class="text-muted">
+                  <%= (@total_participants > 0 ? (@total_adults.to_f / @total_participants * 100).round(1) : 0) %>% of total participants
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Minor Participants -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card stats-card shadow border-0 h-100" style="border-left-color: #fd7e14 !important;">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+              <div class="stats-icon bg-warning bg-opacity-10 text-warning me-3">
+                <i class="fas fa-child"></i>
+              </div>
+              <div>
+                <h6 class="text-muted mb-1 fw-normal">Minor Participants</h6>
+                <h3 class="fw-bold text-warning mb-0"><%= @total_minors %></h3>
+                <small class="text-muted">
+                  <%= (@total_participants > 0 ? (@total_minors.to_f / @total_participants * 100).round(1) : 0) %>% of total participants
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Event Details -->
+    <div class="row g-4">
+      <!-- Event Information -->
+      <div class="col-lg-8">
+        <div class="card shadow border-0">
+          <div class="card-header bg-white border-0 pb-3">
+            <h4 class="card-title fw-bold d-flex align-items-center mb-0">
+              <i class="fas fa-info-circle text-primary me-3"></i>
+              Event Information
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <h6 class="text-muted mb-2">Event Name</h6>
+                <p class="fw-bold mb-0"><%= @event.name %></p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted mb-2">Event Date & Time</h6>
+                <p class="fw-bold mb-0"><%= @event.starts_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted mb-2">Adult Price</h6>
+                <p class="fw-bold mb-0">CAD $<%= (@event.adult_price_cents / 100.0).to_i %></p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted mb-2">Minor Price</h6>
+                <p class="fw-bold mb-0">CAD $<%= (@event.minor_price_cents / 100.0).to_i %></p>
+              </div>
+              <% if @event.description.present? %>
+              <div class="col-12">
+                <h6 class="text-muted mb-2">Description</h6>
+                <p class="mb-0"><%= @event.description %></p>
+              </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="col-lg-4">
+        <div class="card shadow border-0">
+          <div class="card-header bg-white border-0 pb-3">
+            <h4 class="card-title fw-bold d-flex align-items-center mb-0">
+              <i class="fas fa-tools text-success me-3"></i>
+              Quick Actions
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-3">
+              <%= link_to participants_admin_event_path(@event), 
+                  class: "btn btn-outline-primary d-flex align-items-center justify-content-start" do %>
+                <i class="fas fa-users me-3"></i>
+                <div class="text-start">
+                  <div class="fw-bold">View Participants</div>
+                  <small class="text-muted">See all registered participants</small>
+                </div>
+              <% end %>
+              
+              <%= link_to admin_registrations_path(event_id: @event.id), 
+                  class: "btn btn-outline-info d-flex align-items-center justify-content-start" do %>
+                <i class="fas fa-clipboard-list me-3"></i>
+                <div class="text-start">
+                  <div class="fw-bold">View Registrations</div>
+                  <small class="text-muted">See all registration details</small>
+                </div>
+              <% end %>
+
+              <%= link_to edit_admin_event_path(@event), 
+                  class: "btn btn-outline-warning d-flex align-items-center justify-content-start" do %>
+                <i class="fas fa-edit me-3"></i>
+                <div class="text-start">
+                  <div class="fw-bold">Edit Event</div>
+                  <small class="text-muted">Update event details</small>
+                </div>
+              <% end %>
+
+              <%= link_to admin_event_path(@event), 
+                  data: { "turbo-method": :delete, confirm: "Are you sure you want to delete this event? This action cannot be undone." },
+                  class: "btn btn-outline-danger d-flex align-items-center justify-content-start" do %>
+                <i class="fas fa-trash me-3"></i>
+                <div class="text-start">
+                  <div class="fw-bold">Delete Event</div>
+                  <small class="text-muted">Permanently remove event</small>
+                </div>
+              <% end %>
+
+              <%= link_to admin_root_path, 
+                  class: "btn btn-outline-secondary d-flex align-items-center justify-content-start" do %>
+                <i class="fas fa-arrow-left me-3"></i>
+                <div class="text-start">
+                  <div class="fw-bold">Back to Dashboard</div>
+                  <small class="text-muted">Return to events overview</small>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="card shadow border-0 mt-4">
+          <div class="card-header bg-light border-0">
+            <h5 class="card-title fw-bold mb-0">📊 Summary</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-2 text-center">
+              <div class="col-6">
+                <div class="bg-primary bg-opacity-10 rounded p-3">
+                  <h4 class="fw-bold text-primary mb-1"><%= @total_participants %></h4>
+                  <small class="text-muted">Total Participants</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="bg-success bg-opacity-10 rounded p-3">
+                  <h4 class="fw-bold text-success mb-1">$<%= (@event_revenue || 0).to_i %></h4>
+                  <small class="text-muted">Total Revenue</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

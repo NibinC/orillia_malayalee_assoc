@@ -1,0 +1,362 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-md-10">
+    <!-- Navigation and Quick Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <%= link_to root_path, class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-arrow-left me-2"></i>Back to Home
+        <% end %>
+      </div>
+      <% if @registration.status == 'paid' %>
+        <div class="d-flex gap-2">
+          <%= link_to invoice_event_registration_path(@event, @registration), 
+                      class: "btn btn-outline-primary",
+                      target: "_blank" do %>
+            <i class="fas fa-eye me-1"></i>View
+          <% end %>
+          <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
+                      class: "btn btn-primary",
+                      download: "invoice_#{@registration.id}.pdf" do %>
+            <i class="fas fa-download me-1"></i>Download PDF
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-4 text-success fw-bold">Registration Summary</h3>
+
+        <!-- Download Banner for Paid Registrations -->
+        <% if @registration.status == 'paid' %>
+          <div class="alert alert-primary border-0 shadow-sm mb-4">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h5 class="alert-heading mb-2">
+                  <i class="fas fa-file-download me-2"></i>
+                  Your Invoice is Ready!
+                </h5>
+                <p class="mb-0">
+                  Download your official invoice PDF or view it online. 
+                  <strong>Invoice #INV-<%= @registration.id.to_s.rjust(6, '0') %></strong>
+                </p>
+              </div>
+              <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
+                            class: "btn btn-primary btn-lg fw-bold shadow",
+                            download: "invoice_#{@registration.id}.pdf" do %>
+                  <i class="fas fa-download me-2"></i>
+                  Download PDF
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Event Information -->
+        <div class="mb-4">
+          <h5 class="fw-semibold text-primary mb-3">Event Details</h5>
+          <div class="bg-light p-3 rounded">
+            <h6 class="fw-bold mb-2"><%= @event.name %></h6>
+            <p class="text-muted mb-0">
+              <i class="fas fa-calendar-alt me-2"></i>
+              <%= @event.starts_at.strftime("%B %d, %Y at %I:%M %p") %>
+            </p>
+          </div>
+        </div>
+
+        <!-- Registration Contact Information -->
+        <div class="mb-4">
+          <h5 class="fw-semibold text-primary mb-3">Contact Information</h5>
+          <div class="row">
+            <div class="col-md-6">
+              <p><strong>Name:</strong> <%= @registration.first_name %> <%= @registration.last_name %></p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Email:</strong> <%= @registration.email %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendees List -->
+        <div class="mb-4">
+          <h5 class="fw-semibold text-primary mb-3">Attendees</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead class="table-dark">
+                <tr>
+                  <th>Name</th>
+                  <th>Date of Birth</th>
+                  <th>Age</th>
+                  <th>Category</th>
+                  <th class="text-end">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @registration.attendees.each do |attendee| %>
+                  <tr>
+                    <td><%= attendee.first_name %> <%= attendee.last_name %></td>
+                    <td>
+                      <%= attendee.dob.strftime("%B %d, %Y") %>
+                    </td>
+                    <td>
+                      <span class="text-muted">
+                        <%= attendee.age %> years
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-<%= attendee.category == 'adult' ? 'primary' : 'warning' %> px-3 py-2">
+                        <i class="fas fa-<%= attendee.category == 'adult' ? 'user' : 'child' %> me-1"></i>
+                        <%= attendee.category.capitalize %>
+                        <small>(<%= attendee.category == 'adult' ? '12+' : '<12' %>)</small>
+                      </span>
+                    </td>
+                    <td class="text-end fw-bold">
+                      $<%= attendee.category == 'adult' ? @event.adult_price_cents/100.0 : @event.minor_price_cents/100.0 %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pricing Summary -->
+        <div class="mb-4">
+          <div class="card bg-light">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-2">
+                    <strong>Adults:</strong> 
+                    <%= @registration.attendees.count { |a| a.category == 'adult' } %> × 
+                    $<%= @event.adult_price_cents/100.0 %> = 
+                    $<%= (@registration.attendees.count { |a| a.category == 'adult' } * @event.adult_price_cents/100.0) %>
+                  </p>
+                  <p class="mb-2">
+                    <strong>Minors:</strong> 
+                    <%= @registration.attendees.count { |a| a.category == 'minor' } %> × 
+                    $<%= @event.minor_price_cents/100.0 %> = 
+                    $<%= (@registration.attendees.count { |a| a.category == 'minor' } * @event.minor_price_cents/100.0) %>
+                  </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                  <h4 class="text-success fw-bold">
+                    Total: $<%= @registration.total_cents/100.0 %>
+                  </h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Age Calculation Info -->
+        <div class="alert alert-info mb-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <small>
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Age Calculation:</strong> Categories are automatically determined based on date of birth. 
+                Minors are under 12 years old, adults are 12 and older.
+              </small>
+            </div>
+            <div class="col-md-4 text-md-end">
+              <small class="text-muted">
+                Calculated on: <%= Date.current.strftime("%B %d, %Y") %>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status and Actions -->
+        <% if @registration.status == 'paid' %>
+          <div class="alert alert-success text-center fw-semibold mb-4">
+            <i class="fas fa-check-circle me-2"></i>
+            Payment received successfully! Your registration is confirmed.
+          </div>
+          
+          <!-- Quick Action Buttons -->
+          <div class="row g-2 mb-4">
+            <div class="col-md-6">
+              <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
+                          class: "btn btn-success btn-lg w-100 fw-bold shadow",
+                          download: "invoice_#{@registration.id}.pdf" do %>
+                <i class="fas fa-file-pdf me-2"></i>
+                Download Invoice PDF
+              <% end %>
+            </div>
+            <div class="col-md-6">
+              <%= link_to invoice_event_registration_path(@event, @registration), 
+                          class: "btn btn-outline-success btn-lg w-100 fw-bold",
+                          target: "_blank" do %>
+                <i class="fas fa-external-link-alt me-2"></i>
+                View Invoice Online
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Invoice Actions -->
+          <div class="card border-success mb-4 invoice-actions">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0">
+                <i class="fas fa-envelope me-2"></i>
+                Additional Options
+              </h6>
+            </div>
+            <div class="card-body">
+              <p class="card-text mb-3">
+                Need another copy? Send the invoice to your email or share with others.
+              </p>
+              
+              <div class="row g-2 mt-2">
+                <div class="col-12">
+                  <%= form_with url: send_invoice_email_event_registration_path(@event, @registration), 
+                                method: :post, local: true, 
+                                class: "d-grid" do |f| %>
+                    <%= f.submit "📧 Email Invoice to #{@registration.email}", 
+                                 class: "btn btn-success w-100",
+                                 confirm: "Send invoice to #{@registration.email}?" %>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="mt-3 text-center">
+                <small class="text-muted">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Invoice #INV-<%= @registration.id.to_s.rjust(6, '0') %> | 
+                  Generated: <%= @registration.updated_at.strftime("%B %d, %Y") %>
+                </small>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="alert alert-info text-center mb-4">
+            <strong>Status:</strong> Payment Pending
+          </div>
+          <div class="d-grid gap-2">
+            <button id="pay-button" class="btn btn-success btn-lg fw-semibold">
+              <i class="fas fa-credit-card me-2"></i>Pay with Card
+            </button>
+            <a href="<%= new_event_registration_path(@event) %>" class="btn btn-outline-secondary">
+              <i class="fas fa-edit me-2"></i>Edit Registration
+            </a>
+          </div>
+          <p class="text-muted mt-2 text-center small">You'll be redirected to a secure Stripe checkout page.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% unless @registration.status == 'paid' %>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  console.log('DOM loaded, looking for pay button...');
+  const btn = document.getElementById("pay-button");
+  if (!btn) {
+    console.error('Pay button not found!');
+    return;
+  }
+  console.log('Pay button found, adding event listener...');
+
+  btn.addEventListener("click", function() {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    
+    // Create a form to submit to get the checkout session
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/checkouts';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'authenticity_token';
+      csrfInput.value = csrfToken.content;
+      form.appendChild(csrfInput);
+    }
+    
+    // Add registration ID
+    const regInput = document.createElement('input');
+    regInput.type = 'hidden';
+    regInput.name = 'registration_id';
+    regInput.value = '<%= @registration.id %>';
+    form.appendChild(regInput);
+    
+    // Add event ID
+    const eventInput = document.createElement('input');
+    eventInput.type = 'hidden';
+    eventInput.name = 'event_id';
+    eventInput.value = '<%= @event.id %>';
+    form.appendChild(eventInput);
+    
+    document.body.appendChild(form);
+    
+    // Use XMLHttpRequest for better browser compatibility
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData(form);
+    
+    xhr.open('POST', '/checkouts');
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.id && data.public_key) {
+            const stripe = Stripe(data.public_key);
+            stripe.redirectToCheckout({ sessionId: data.id }).then(function(result) {
+              if (result.error) {
+                alert('Error: ' + result.error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
+              }
+            });
+          } else {
+            alert('Invalid response from server');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
+          }
+        } catch (e) {
+          alert('Error processing response');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
+        }
+      } else {
+        alert('Payment processing failed. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
+      }
+      document.body.removeChild(form);
+    };
+    
+    xhr.onerror = function() {
+      alert('Network error. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
+      document.body.removeChild(form);
+    };
+    
+    xhr.send(formData);
+  });
+  
+  console.log('Event listener added successfully');
+});
+</script>
+<% end %>
+
+<!-- Floating Download Button for Paid Registrations -->
+<% if @registration.status == 'paid' %>
+  <div class="floating-download-btn">
+    <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
+                class: "btn btn-success btn-lg rounded-circle shadow-lg",
+                download: "invoice_#{@registration.id}.pdf",
+                title: "Download Invoice PDF",
+                data: { bs_toggle: "tooltip", bs_placement: "left" } do %>
+      <i class="fas fa-download"></i>
+    <% end %>
+  </div>
+<% end %>

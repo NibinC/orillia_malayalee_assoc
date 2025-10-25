@@ -1,0 +1,60 @@
+<div class="row justify-content-center min-vh-75 align-items-center">
+  <div class="col-lg-5 col-md-7 col-sm-9">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-5">
+        <!-- Header Section -->
+        <div class="text-center mb-4">
+          <div class="mb-3">
+            <i class="fas fa-key text-warning" style="font-size: 3rem;"></i>
+          </div>
+          <h2 class="fw-bold text-dark mb-2">Reset Password</h2>
+          <p class="text-muted">Enter your email to receive reset instructions</p>
+        </div>
+
+        <!-- Reset Form -->
+        <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "needs-validation", novalidate: true }) do |f| %>
+          <%= render "admin_users/shared/error_messages", resource: resource %>
+
+          <!-- Email Field -->
+          <div class="mb-4">
+            <%= f.label :email, class: "form-label fw-semibold" do %>
+              <i class="fas fa-envelope text-warning me-2"></i>Email Address
+            <% end %>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="fas fa-at text-muted"></i>
+              </span>
+              <%= f.email_field :email, 
+                  autofocus: true, 
+                  autocomplete: "email",
+                  class: "form-control form-control-lg border-start-0 ps-0",
+                  placeholder: "Enter your email address",
+                  required: true %>
+              <div class="invalid-feedback">
+                Please provide a valid email address.
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid mb-4">
+            <%= f.submit "Send Reset Instructions", 
+                class: "btn btn-warning btn-lg fw-bold" %>
+          </div>
+        <% end %>
+
+        <!-- Additional Links -->
+        <div class="text-center">
+          <%= render "admin_users/shared/links" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to Home Link -->
+    <div class="text-center mt-3">
+      <%= link_to root_path, class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="fas fa-arrow-left me-2"></i>Back to Website
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,108 @@
+<div style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); min-height: 100vh; padding: 2rem;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-lg" style="border-radius: 20px; border: 3px solid #fff;">
+          <div class="card-body p-5">
+            <div class="text-center mb-4">
+              <h1 style="color: #333; font-size: 2.5rem;">🔐 Admin Login</h1>
+              <p style="color: #666;">Orillia Malayalee Association</p>
+            </div>
+
+            <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+              <div class="mb-3">
+                <%= f.label :email, "Email Address", class: "form-label fw-bold" %>
+                <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+                    class: "form-control form-control-lg",
+                    style: "border: 2px solid #4ecdc4; border-radius: 10px;",
+                    placeholder: "Enter your admin email" %>
+              </div>
+
+              <div class="mb-3">
+                <%= f.label :password, "Password", class: "form-label fw-bold" %>
+                <div class="input-group">
+                  <%= f.password_field :password, autocomplete: "current-password",
+                      class: "form-control form-control-lg",
+                      id: "admin_password",
+                      style: "border: 2px solid #4ecdc4; border-radius: 10px 0 0 10px;",
+                      placeholder: "Enter your password" %>
+                  <button class="btn" type="button" id="togglePassword" 
+                          style="background: #4ecdc4; border: 2px solid #4ecdc4; border-radius: 0 10px 10px 0;">
+                    <i class="fas fa-eye" style="color: white;"></i>
+                  </button>
+                </div>
+              </div>
+
+              <% if devise_mapping.rememberable? %>
+                <div class="form-check mb-3">
+                  <%= f.check_box :remember_me, class: "form-check-input" %>
+                  <%= f.label :remember_me, "Remember me", class: "form-check-label" %>
+                </div>
+              <% end %>
+
+              <div class="d-grid">
+                <%= f.submit "🚀 Sign In", 
+                    class: "btn btn-lg fw-bold btn-login",
+                    style: "background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; border: none; border-radius: 10px; padding: 15px;" %>
+              </div>
+            <% end %>
+
+            <div class="text-center mt-4">
+              <%= render "admin_users/shared/links" %>
+            </div>
+            
+            <div class="text-center mt-3">
+              <%= link_to "← Back to Website", root_path, class: "btn btn-outline-secondary" %>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-control:focus {
+  border-color: #4ecdc4 !important;
+  box-shadow: 0 0 10px rgba(78, 205, 196, 0.3) !important;
+}
+
+.btn-login {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('admin_password');
+  
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      const icon = this.querySelector('i');
+      icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+  }
+});
+</script>

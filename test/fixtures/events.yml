@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  starts_at: 2025-10-24 12:17:37
+  adult_price_cents: 1
+  minor_price_cents: 1
+  currency: MyString
+  published: false
+
+two:
+  name: MyString
+  description: MyText
+  starts_at: 2025-10-24 12:17:37
+  adult_price_cents: 1
+  minor_price_cents: 1
+  currency: MyString
+  published: false
