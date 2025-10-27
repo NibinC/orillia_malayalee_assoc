@@ -3,11 +3,12 @@ Rails.application.routes.draw do
 
   devise_for :admin_users, path: "admin", skip: [:registrations]
 
-  resources :events, only: [:show] do
-    resources :registrations, only: [:new, :create, :show] do
+  resources :events, only: [:index, :show] do
+    resources :registrations, only: [:new, :create, :show, :edit, :update] do
       member do
         get :invoice # HTML and PDF
         post :send_invoice_email # Send invoice via email
+        post :mark_paid # Temporary testing action
       end
     end
   end

@@ -62,22 +62,42 @@ class CheckoutsController < ApplicationController
   def success
     @session_id = params[:session_id]
     
-    # Try to find the registration associated with this session
     if @session_id.present?
       begin
-        # Retrieve session from Stripe to get registration_id from metadata
+        Rails.logger.info "Processing checkout success for session: #{@session_id}"
         session = Stripe::Checkout::Session.retrieve(@session_id)
         registration_id = session.metadata&.[]('registration_id')
+        
+        Rails.logger.info "Session payment_status: #{session.payment_status}, registration_id: #{registration_id}"
         
         if registration_id
           @registration = Registration.find(registration_id)
           @event = @registration.event
+          
+          Rails.logger.info "Found registration #{@registration.id}, current status: #{@registration.status}"
+          
+          if session.payment_status == 'paid' && @registration.status != 'paid'
+            Rails.logger.info "Marking registration as paid with payment_intent: #{session.payment_intent}"
+            # Mark paid using payment_intent id
+            if session.payment_intent.present?
+              @registration.mark_paid!(payment_intent_id: session.payment_intent)
+              Rails.logger.info "Registration #{@registration.id} marked as paid successfully"
+            else
+              Rails.logger.warn "No payment_intent found in session"
+            end
+          else
+            Rails.logger.info "Skipping payment update - payment_status: #{session.payment_status}, current status: #{@registration.status}"
+          end
+        else
+          Rails.logger.warn "No registration_id found in session metadata"
         end
       rescue Stripe::StripeError, ActiveRecord::RecordNotFound => e
-        Rails.logger.error "Error retrieving registration from session: #{e.message}"
+        Rails.logger.error "Checkout success payment finalize failed: #{e.message}"
         @registration = nil
         @event = nil
       end
+    else
+      Rails.logger.warn "No session_id provided to success action"
     end
   end
 

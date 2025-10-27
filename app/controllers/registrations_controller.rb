@@ -3,26 +3,36 @@ class RegistrationsController < ApplicationController
 
   def new
     @registration = @event.registrations.new
-    # Build 1 adult row by default; users can add/remove via JS on the form
-    1.times { @registration.attendees.build(category: "adult") }
+    # Build 1 empty row by default; users can add/remove via JS on the form
+    1.times { @registration.attendees.build }
   end
 
   def create
     @registration = @event.registrations.new(registration_params)
     @registration.status = "pending"
 
-    # Compute total based on attendee categories
-    adult_count = @registration.attendees.count { |a| a.category == "adult" }
-    minor_count = @registration.attendees.count { |a| a.category == "minor" }
-
-    total = (adult_count * @event.adult_price_cents) + (minor_count * @event.minor_price_cents)
-    @registration.total_cents = total
-    @registration.currency = @event.currency
-
     if @registration.save
       redirect_to event_registration_path(@event, @registration)
     else
+      Rails.logger.error "Registration save failed: #{ @registration.errors.full_messages.join(', ') }"
+      @registration.attendees.each_with_index do |a,i|
+        Rails.logger.error "Attendee ##{i} errors: #{a.errors.full_messages.join(', ')}" if a.errors.any?
+      end
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    @registration = @event.registrations.find(params[:id])
+    @registration.attendees.build if @registration.attendees.empty?
+  end
+
+  def update
+    @registration = @event.registrations.find(params[:id])
+    if @registration.update(registration_params)
+      redirect_to event_registration_path(@event, @registration), notice: 'Registration updated successfully.'
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -77,6 +87,14 @@ class RegistrationsController < ApplicationController
     end
   end
 
+  # Temporary action for testing - mark registration as paid
+  def mark_paid
+    @registration = @event.registrations.find(params[:id])
+    @registration.mark_paid!(payment_intent_id: "test_payment_#{Time.current.to_i}")
+    redirect_to event_registration_path(@event, @registration), 
+                notice: 'Registration marked as paid for testing!'
+  end
+
   private
 
   def set_event
@@ -86,7 +104,7 @@ class RegistrationsController < ApplicationController
   def registration_params
     params.require(:registration).permit(
       :first_name, :last_name, :email,
-      attendees_attributes: [:first_name, :last_name, :dob, :category, :_destroy]
+      attendees_attributes: [:id, :first_name, :last_name, :dob, :category, :_destroy]
     )
   end
 end

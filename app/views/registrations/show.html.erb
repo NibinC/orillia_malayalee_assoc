@@ -9,15 +9,11 @@
       </div>
       <% if @registration.status == 'paid' %>
         <div class="d-flex gap-2">
-          <%= link_to invoice_event_registration_path(@event, @registration), 
-                      class: "btn btn-outline-primary",
-                      target: "_blank" do %>
-            <i class="fas fa-eye me-1"></i>View
+          <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), class: "btn btn-primary", download: "invoice_#{@registration.id}.pdf" do %>
+            <i class="fas fa-download me-1"></i>Download Invoice
           <% end %>
-          <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
-                      class: "btn btn-primary",
-                      download: "invoice_#{@registration.id}.pdf" do %>
-            <i class="fas fa-download me-1"></i>Download PDF
+          <%= link_to invoice_event_registration_path(@event, @registration), class: "btn btn-outline-primary", target: "_blank" do %>
+            <i class="fas fa-eye me-1"></i>View Invoice
           <% end %>
         </div>
       <% end %>
@@ -172,74 +168,27 @@
         <% if @registration.status == 'paid' %>
           <div class="alert alert-success text-center fw-semibold mb-4">
             <i class="fas fa-check-circle me-2"></i>
-            Payment received successfully! Your registration is confirmed.
-          </div>
-          
-          <!-- Quick Action Buttons -->
-          <div class="row g-2 mb-4">
-            <div class="col-md-6">
-              <%= link_to invoice_event_registration_path(@event, @registration, format: :pdf), 
-                          class: "btn btn-success btn-lg w-100 fw-bold shadow",
-                          download: "invoice_#{@registration.id}.pdf" do %>
-                <i class="fas fa-file-pdf me-2"></i>
-                Download Invoice PDF
-              <% end %>
-            </div>
-            <div class="col-md-6">
-              <%= link_to invoice_event_registration_path(@event, @registration), 
-                          class: "btn btn-outline-success btn-lg w-100 fw-bold",
-                          target: "_blank" do %>
-                <i class="fas fa-external-link-alt me-2"></i>
-                View Invoice Online
-              <% end %>
-            </div>
-          </div>
-          
-          <!-- Invoice Actions -->
-          <div class="card border-success mb-4 invoice-actions">
-            <div class="card-header bg-info text-white">
-              <h6 class="mb-0">
-                <i class="fas fa-envelope me-2"></i>
-                Additional Options
-              </h6>
-            </div>
-            <div class="card-body">
-              <p class="card-text mb-3">
-                Need another copy? Send the invoice to your email or share with others.
-              </p>
-              
-              <div class="row g-2 mt-2">
-                <div class="col-12">
-                  <%= form_with url: send_invoice_email_event_registration_path(@event, @registration), 
-                                method: :post, local: true, 
-                                class: "d-grid" do |f| %>
-                    <%= f.submit "📧 Email Invoice to #{@registration.email}", 
-                                 class: "btn btn-success w-100",
-                                 confirm: "Send invoice to #{@registration.email}?" %>
-                  <% end %>
-                </div>
-              </div>
-              
-              <div class="mt-3 text-center">
-                <small class="text-muted">
-                  <i class="fas fa-info-circle me-1"></i>
-                  Invoice #INV-<%= @registration.id.to_s.rjust(6, '0') %> | 
-                  Generated: <%= @registration.updated_at.strftime("%B %d, %Y") %>
-                </small>
-              </div>
-            </div>
+            Payment done. Your registration is confirmed.
+            <span class="badge bg-success ms-2">Amount Paid: $<%= @registration.total_cents/100.0 %></span>
           </div>
         <% else %>
           <div class="alert alert-info text-center mb-4">
             <strong>Status:</strong> Payment Pending
           </div>
           <div class="d-grid gap-2">
-            <button id="pay-button" class="btn btn-success btn-lg fw-semibold">
+            <button id="pay-button" class="btn btn-success btn-lg fw-semibold" data-turbo="false">
               <i class="fas fa-credit-card me-2"></i>Pay with Card
             </button>
-            <a href="<%= new_event_registration_path(@event) %>" class="btn btn-outline-secondary">
+            <a href="<%= edit_event_registration_path(@event, @registration) %>" class="btn btn-outline-secondary">
               <i class="fas fa-edit me-2"></i>Edit Registration
             </a>
+            
+            <!-- Temporary testing button -->
+            <%= form_with url: mark_paid_event_registration_path(@event, @registration), method: :post, local: true, class: "mt-2" do %>
+              <button type="submit" class="btn btn-warning btn-sm">
+                <i class="fas fa-check me-1"></i>Mark as Paid (Testing)
+              </button>
+            <% end %>
           </div>
           <p class="text-muted mt-2 text-center small">You'll be redirected to a secure Stripe checkout page.</p>
         <% end %>
@@ -250,101 +199,37 @@
 
 <% unless @registration.status == 'paid' %>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  console.log('DOM loaded, looking for pay button...');
+function initRegistrationPayment(){
   const btn = document.getElementById("pay-button");
-  if (!btn) {
-    console.error('Pay button not found!');
-    return;
-  }
-  console.log('Pay button found, adding event listener...');
-
-  btn.addEventListener("click", function() {
+  if(!btn) return;
+  btn.disabled = false;
+  btn.addEventListener("click", function handler(){
+    btn.removeEventListener('click', handler); // prevent double bind
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-    
-    // Create a form to submit to get the checkout session
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/checkouts';
-    form.style.display = 'none';
-    
-    // Add CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = 'authenticity_token';
-      csrfInput.value = csrfToken.content;
-      form.appendChild(csrfInput);
-    }
-    
-    // Add registration ID
-    const regInput = document.createElement('input');
-    regInput.type = 'hidden';
-    regInput.name = 'registration_id';
-    regInput.value = '<%= @registration.id %>';
-    form.appendChild(regInput);
-    
-    // Add event ID
-    const eventInput = document.createElement('input');
-    eventInput.type = 'hidden';
-    eventInput.name = 'event_id';
-    eventInput.value = '<%= @event.id %>';
-    form.appendChild(eventInput);
-    
-    document.body.appendChild(form);
-    
-    // Use XMLHttpRequest for better browser compatibility
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData(form);
-    
-    xhr.open('POST', '/checkouts');
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (data.id && data.public_key) {
-            const stripe = Stripe(data.public_key);
-            stripe.redirectToCheckout({ sessionId: data.id }).then(function(result) {
-              if (result.error) {
-                alert('Error: ' + result.error.message);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
-              }
-            });
-          } else {
-            alert('Invalid response from server');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
-          }
-        } catch (e) {
-          alert('Error processing response');
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
-        }
-      } else {
-        alert('Payment processing failed. Please try again.');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
-      }
-      document.body.removeChild(form);
-    };
-    
-    xhr.onerror = function() {
-      alert('Network error. Please try again.');
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    fetch('/checkouts', {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrfToken },
+      body: new URLSearchParams({ registration_id: '<%= @registration.id %>' })
+    }).then(r => r.json()).then(data => {
+      if(data.error){ throw new Error(data.error); }
+      if(!window.Stripe){ throw new Error('Stripe library not loaded'); }
+      const stripe = Stripe(data.public_key);
+      return stripe.redirectToCheckout({ sessionId: data.id });
+    }).then(result => {
+      if(result && result.error){ throw new Error(result.error.message); }
+    }).catch(err => {
+      alert(err.message || 'Payment failed');
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
-      document.body.removeChild(form);
-    };
-    
-    xhr.send(formData);
+      btn.addEventListener('click', handler); // rebind
+    });
   });
-  
-  console.log('Event listener added successfully');
-});
+}
+addEventListener('turbo:load', initRegistrationPayment);
+addEventListener('DOMContentLoaded', initRegistrationPayment);
 </script>
 <% end %>
 

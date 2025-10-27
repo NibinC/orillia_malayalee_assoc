@@ -1,0 +1,134 @@
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4">
+        <h2 class="text-center mb-4 text-success fw-bold">Edit Registration</h2>
+
+        <%= form_with model: [@event, @registration], local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :first_name, "First Name", class: "form-label fw-semibold" %>
+            <%= f.text_field :first_name, class: "form-control", placeholder: "Enter your first name", required: true %>
+          </div>
+
+            <div class="mb-3">
+            <%= f.label :last_name, "Last Name", class: "form-label fw-semibold" %>
+            <%= f.text_field :last_name, class: "form-control", placeholder: "Enter your last name", required: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :email, "Email Address", class: "form-label fw-semibold" %>
+            <%= f.email_field :email, class: "form-control", placeholder: "example@email.com", required: true %>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="fw-semibold mb-3">Attendees</h5>
+            <div class="alert alert-info py-2 mb-3">
+              <small><i class="fas fa-info-circle me-1"></i>
+                Date of birth determines pricing automatically. Only name and DOB required.
+              </small>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-4"><small class="text-muted fw-semibold">First Name</small></div>
+              <div class="col-md-4"><small class="text-muted fw-semibold">Last Name</small></div>
+              <div class="col-md-3"><small class="text-muted fw-semibold">Date of Birth</small></div>
+              <div class="col-md-1"></div>
+            </div>
+            <div id="attendees">
+              <%= f.fields_for :attendees do |attendee_form| %>
+                <div class="row mb-3 attendee-row align-items-start">
+                  <%= attendee_form.hidden_field :id %>
+                  <div class="col-md-4">
+                    <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name", required: true %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name", required: true %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                    <small class="text-muted age-display"></small>
+                  </div>
+                  <div class="col-md-1 text-end">
+                    <%= attendee_form.hidden_field :_destroy, value: 0, class: 'destroy-flag' %>
+                    <button type="button" class="btn btn-link text-danger remove-attendee-btn p-0" title="Remove"><i class="fas fa-times"></i></button>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="add-attendee">+ Add Another Attendee</button>
+          </div>
+
+          <div class="d-grid mt-4">
+            <%= f.submit "Update Registration", class: "btn btn-success btn-lg fw-semibold" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function initRegistrationEditForm() {
+  let attendeeCount = document.querySelectorAll('#attendees .attendee-row').length;
+
+  function calculateAge(dob) {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+  }
+
+  function updateAgeDisplay(dobField) {
+    if (!dobField.value) return;
+    const age = calculateAge(dobField.value);
+    const category = age < 12 ? 'minor' : 'adult';
+    const ageDisplay = dobField.closest('.attendee-row').querySelector('.age-display');
+    if (ageDisplay) ageDisplay.textContent = `Age: ${age} (${category})`;
+  }
+
+  // Initial DOB listeners
+  document.querySelectorAll('#attendees .dob-field').forEach(df => {
+    df.addEventListener('change', () => updateAgeDisplay(df));
+    if (df.value) updateAgeDisplay(df);
+  });
+
+  // Event delegation for remove buttons
+  document.getElementById('attendees').addEventListener('click', (e) => {
+    const btn = e.target.closest('.remove-attendee-btn');
+    if (!btn) return;
+    const row = btn.closest('.attendee-row');
+    const destroyInput = row.querySelector('input[name*="[_destroy]"]');
+    if (destroyInput) {
+      destroyInput.value = '1';
+      row.style.display = 'none';
+    } else {
+      row.remove();
+    }
+  });
+
+  // Add attendee
+  const addBtn = document.getElementById('add-attendee');
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = 'true';
+    addBtn.addEventListener('click', () => {
+      const attendeesDiv = document.getElementById('attendees');
+      const row = document.createElement('div');
+      row.className = 'row mb-3 attendee-row align-items-start';
+      row.innerHTML = `
+        <div class="col-md-4"><input type="text" name="registration[attendees_attributes][${attendeeCount}][first_name]" class="form-control" placeholder="First Name" required></div>
+        <div class="col-md-4"><input type="text" name="registration[attendees_attributes][${attendeeCount}][last_name]" class="form-control" placeholder="Last Name" required></div>
+        <div class="col-md-3"><input type="date" name="registration[attendees_attributes][${attendeeCount}][dob]" class="form-control dob-field" required><small class="text-muted age-display"></small></div>
+        <div class="col-md-1 text-end"><input type="hidden" name="registration[attendees_attributes][${attendeeCount}][_destroy]" value="0"><button type="button" class="btn btn-link text-danger remove-attendee-btn p-0" title="Remove"><i class="fas fa-times"></i></button></div>`;
+      attendeesDiv.appendChild(row);
+      const dobField = row.querySelector('.dob-field');
+      dobField.addEventListener('change', () => updateAgeDisplay(dobField));
+      attendeeCount++;
+    });
+  }
+}
+
+// Support both full reload and Turbo navigation
+addEventListener('turbo:load', initRegistrationEditForm);
+addEventListener('DOMContentLoaded', initRegistrationEditForm);
+</script>

@@ -44,21 +44,16 @@
                     Download PDF
                   <% end %>
                 </div>
-                <div class="col-md-6">
-                  <%= link_to invoice_event_registration_path(@event, @registration), 
-                              class: "btn btn-outline-primary w-100",
-                              target: "_blank" do %>
-                    <i class="fas fa-external-link-alt me-2"></i>
-                    View Online
-                  <% end %>
-                </div>
               </div>
-              
+              <div class="text-center mb-3">
+                <span class="badge bg-success px-3 py-2">
+                  Paid: $<%= @registration.total_cents/100.0 %>
+                </span>
+              </div>
               <div class="text-center">
-                <%= link_to event_registration_path(@event, @registration), 
-                            class: "btn btn-outline-secondary btn-sm" do %>
-                  <i class="fas fa-eye me-1"></i>
-                  View Full Registration Details
+                <%= link_to event_registration_path(@event, @registration), class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="fas fa-file-invoice me-1"></i>
+                  View Invoice & Registration
                 <% end %>
               </div>
             </div>
@@ -81,8 +76,8 @@
         <% end %>
         
         <div class="d-grid gap-2">
-          <a href="<%= root_path %>" class="btn btn-success btn-lg">
-            <i class="fas fa-home me-2"></i>Back to Home
+          <a href="<%= event_registration_path(@event, @registration) if @registration && @event %>" class="btn btn-success btn-lg">
+            <i class="fas fa-file-invoice me-2"></i>Return to Invoice Page
           </a>
           <% if @session_id %>
             <p class="text-muted small mt-3">Session ID: <%= @session_id %></p>
