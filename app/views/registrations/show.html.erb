@@ -182,13 +182,6 @@
             <a href="<%= edit_event_registration_path(@event, @registration) %>" class="btn btn-outline-secondary">
               <i class="fas fa-edit me-2"></i>Edit Registration
             </a>
-            
-            <!-- Temporary testing button -->
-            <%= form_with url: mark_paid_event_registration_path(@event, @registration), method: :post, local: true, class: "mt-2" do %>
-              <button type="submit" class="btn btn-warning btn-sm">
-                <i class="fas fa-check me-1"></i>Mark as Paid (Testing)
-              </button>
-            <% end %>
           </div>
           <p class="text-muted mt-2 text-center small">You'll be redirected to a secure Stripe checkout page.</p>
         <% end %>

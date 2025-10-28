@@ -377,15 +377,10 @@ code {
   position: relative;
   height: 100vh;
   min-height: 600px;
-  background: linear-gradient(
-    135deg,
-    #007bff 0%,
-    #28a745 35%,
-    #ffc107 70%,
-    #dc3545 100%
-  );
-  background-size: 400% 400%;
-  animation: gradientShift 8s ease-in-out infinite;
+  background: url('community-hero.jpg') center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -398,19 +393,15 @@ code {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-@keyframes gradientShift {
-  0%, 100% {
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.8) 0%, rgba(40, 167, 69, 0.7) 50%, rgba(255, 193, 7, 0.6) 100%);
-  }
-  50% {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.8) 0%, rgba(0, 123, 255, 0.7) 50%, rgba(40, 167, 69, 0.6) 100%);
-  }
 }
 
 .hero-content {
@@ -965,6 +956,41 @@ code {
     font-size: 18px;
     font-weight: 600;
     border-radius: 8px;
+  }
+
+  /* Ensure submit button is properly clickable on mobile */
+  input[type="submit"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    min-height: 52px !important;
+    font-size: 18px !important;
+    width: 100% !important;
+    border: none !important;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input[type="submit"]:active {
+    transform: translateY(1px);
+  }
+
+  input[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Ensure hidden form fields don't interfere with validation */
+  .d-none input[required] {
+    /* Remove required attribute from hidden fields via CSS for older browsers */
+    pointer-events: none;
+  }
+  
+  .d-md-none input {
+    /* Ensure mobile fields are properly accessible */
+    pointer-events: auto;
   }
 }
 

@@ -1,4 +1,6 @@
 class RegistrationsController < ApplicationController
+  # Allow older browsers for event registration to ensure maximum accessibility
+  allow_browser versions: { safari: "10", firefox: "50", chrome: "60", edge: "15", opera: "47" }
   before_action :set_event
 
   def new

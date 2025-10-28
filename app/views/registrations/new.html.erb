@@ -4,7 +4,7 @@
       <div class="card-body p-4">
         <h2 class="text-center mb-4 text-success fw-bold">Event Registration</h2>
 
-        <%= form_with model: [@event, @registration], local: true do |f| %>
+        <%= form_with model: [@event, @registration], local: true, html: { id: "registration-form" } do |f| %>
           <% if @registration.errors.any? %>
             <div class="alert alert-danger">
               <div class="d-flex align-items-start">
@@ -75,17 +75,17 @@
                     
                     <div class="mb-3">
                       <label class="form-label fw-semibold text-muted">First Name</label>
-                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "Enter first name", required: true %>
+                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "Enter first name" %>
                     </div>
                     
                     <div class="mb-3">
                       <label class="form-label fw-semibold text-muted">Last Name</label>
-                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Enter last name", required: true %>
+                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Enter last name" %>
                     </div>
                     
                     <div class="mb-2">
                       <label class="form-label fw-semibold text-muted">Date of Birth</label>
-                      <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                      <%= attendee_form.date_field :dob, class: "form-control dob-field" %>
                       <small class="text-muted age-display mt-1 d-block"></small>
                     </div>
                   </div>
@@ -93,13 +93,13 @@
                   <!-- Desktop: Row Layout -->
                   <div class="row g-2 align-items-start d-none d-md-flex">
                     <div class="col-md-4">
-                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name", required: true %>
+                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name" %>
                     </div>
                     <div class="col-md-4">
-                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name", required: true %>
+                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name" %>
                     </div>
                     <div class="col-md-3">
-                      <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                      <%= attendee_form.date_field :dob, class: "form-control dob-field" %>
                       <small class="text-muted age-display"></small>
                     </div>
                     <div class="col-md-1 text-end">
@@ -161,54 +161,216 @@ function initRegistrationNewForm(){
   }
   document.querySelectorAll('#attendees .dob-field').forEach(df=>{ df.addEventListener('change',()=>updateAgeAndCategory(df)); if(df.value) updateAgeAndCategory(df); });
   document.getElementById('attendees').addEventListener('click',e=>{ const btn=e.target.closest('.remove-attendee-btn'); if(!btn) return; const row=btn.closest('.attendee-row'); const destroy=row.querySelector('input[name*="[_destroy]"]'); if(destroy){ destroy.value='1'; row.style.display='none'; } else { row.remove(); } });
-  const addBtn=document.getElementById('add-attendee'); if(addBtn && !addBtn.dataset.bound){ addBtn.dataset.bound='true'; addBtn.addEventListener('click',()=>{ const wrap=document.getElementById('attendees'); const row=document.createElement('div'); row.className='attendee-row mb-4 p-3 border rounded'; row.innerHTML=`
-    <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][category]' value='adult'>
-    <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][_destroy]' value='0' class='destroy-flag'>
+  const addBtn=document.getElementById('add-attendee'); 
+  if(addBtn && !addBtn.dataset.bound){ 
+    addBtn.dataset.bound='true'; 
+    addBtn.addEventListener('click',()=>{ 
+      const wrap=document.getElementById('attendees'); 
+      const row=document.createElement('div'); 
+      row.className='attendee-row mb-4 p-3 border rounded'; 
+      row.innerHTML=`
+        <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][category]' value='adult'>
+        <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][_destroy]' value='0' class='destroy-flag'>
+        
+        <!-- Mobile: Stacked Layout -->
+        <div class='d-md-none'>
+          <div class='d-flex justify-content-between align-items-center mb-2'>
+            <strong class='text-primary'>Attendee</strong>
+            <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0' title='Remove'>
+              <i class='fas fa-times fa-lg'></i>
+            </button>
+          </div>
+          
+          <div class='mb-3'>
+            <label class='form-label fw-semibold text-muted'>First Name</label>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='Enter first name'>
+          </div>
+          
+          <div class='mb-3'>
+            <label class='form-label fw-semibold text-muted'>Last Name</label>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Enter last name'>
+          </div>
+          
+          <div class='mb-2'>
+            <label class='form-label fw-semibold text-muted'>Date of Birth</label>
+            <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field'>
+            <small class='text-muted age-display mt-1 d-block'></small>
+          </div>
+        </div>
+        
+        <!-- Desktop: Row Layout -->
+        <div class='row g-2 align-items-start d-none d-md-flex'>
+          <div class='col-md-4'>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='First Name'>
+          </div>
+          <div class='col-md-4'>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Last Name'>
+          </div>
+          <div class='col-md-3'>
+            <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field'>
+            <small class='text-muted age-display'></small>
+          </div>
+          <div class='col-md-1 text-end'>
+            <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0 mt-1' title='Remove'>
+              <i class='fas fa-times'></i>
+            </button>
+          </div>
+        </div>`; 
+      wrap.appendChild(row); 
+      const dob=row.querySelector('.dob-field'); 
+      dob.addEventListener('change',()=>updateAgeAndCategory(dob)); 
+      attendeeCount++; 
+      
+      // Update required fields after adding new attendee
+      updateRequiredFields();
+    }); 
+  }
+  
+  // Function to check if an element is actually visible (not just display rules)
+  function isElementVisible(element) {
+    if (!element) return false;
     
-    <!-- Mobile: Stacked Layout -->
-    <div class='d-md-none'>
-      <div class='d-flex justify-content-between align-items-center mb-2'>
-        <strong class='text-primary'>Attendee</strong>
-        <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0' title='Remove'>
-          <i class='fas fa-times fa-lg'></i>
-        </button>
-      </div>
-      
-      <div class='mb-3'>
-        <label class='form-label fw-semibold text-muted'>First Name</label>
-        <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='Enter first name' required>
-      </div>
-      
-      <div class='mb-3'>
-        <label class='form-label fw-semibold text-muted'>Last Name</label>
-        <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Enter last name' required>
-      </div>
-      
-      <div class='mb-2'>
-        <label class='form-label fw-semibold text-muted'>Date of Birth</label>
-        <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required>
-        <small class='text-muted age-display mt-1 d-block'></small>
-      </div>
-    </div>
+    // Check if element itself is hidden
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
     
-    <!-- Desktop: Row Layout -->
-    <div class='row g-2 align-items-start d-none d-md-flex'>
-      <div class='col-md-4'>
-        <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='First Name' required>
-      </div>
-      <div class='col-md-4'>
-        <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Last Name' required>
-      </div>
-      <div class='col-md-3'>
-        <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required>
-        <small class='text-muted age-display'></small>
-      </div>
-      <div class='col-md-1 text-end'>
-        <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0 mt-1' title='Remove'>
-          <i class='fas fa-times'></i>
-        </button>
-      </div>
-    </div>`; wrap.appendChild(row); const dob=row.querySelector('.dob-field'); dob.addEventListener('change',()=>updateAgeAndCategory(dob)); attendeeCount++; }); }
+    // Check parent containers for bootstrap responsive classes
+    let parent = element.parentElement;
+    while (parent && parent !== document.body) {
+      const parentStyle = window.getComputedStyle(parent);
+      if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') return false;
+      parent = parent.parentElement;
+    }
+    
+    return true;
+  }
+  
+  // Function to manage required attributes based on screen size
+  function updateRequiredFields() {
+    const isMobile = window.innerWidth < 768;
+    
+    // Clear all required attributes first
+    const allFormFields = document.querySelectorAll('#registration-form input[type="text"], #registration-form input[type="email"], #registration-form input[type="date"]');
+    allFormFields.forEach(field => {
+      // Store original name attribute for restoration if needed
+      if (field.name && !field.hasAttribute('data-original-name')) {
+        field.setAttribute('data-original-name', field.name);
+      }
+      field.required = false;
+    });
+    
+    // Set required only for visible fields
+    allFormFields.forEach(field => {
+      const fieldContainer = field.closest('.d-md-none, .d-none.d-md-flex');
+      
+      if (!fieldContainer) {
+        // Always visible field (like main registration form fields)
+        field.required = true;
+      } else if (isElementVisible(field)) {
+        // Only set required if the field is actually visible
+        field.required = true;
+      }
+    });
+  }
+  
+  // Update required fields on load and resize
+  updateRequiredFields();
+  window.addEventListener('resize', updateRequiredFields);
+  
+  // Add form submission handling
+  const form = document.getElementById('registration-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      console.log('Form submission attempted');
+      
+      // Update required fields right before validation
+      updateRequiredFields();
+      
+      // CRITICAL FIX: Disable hidden form fields so they don't get submitted
+      const allFormFields = form.querySelectorAll('input[type="text"], input[type="email"], input[type="date"]');
+      allFormFields.forEach(field => {
+        if (!isElementVisible(field)) {
+          // Disable hidden fields so they won't be submitted to the server
+          field.disabled = true;
+          field.name = ''; // Also clear the name to prevent submission
+        } else {
+          // Ensure visible fields are enabled
+          field.disabled = false;
+        }
+      });
+      
+      // Validate only visible required fields
+      const visibleRequiredFields = Array.from(form.querySelectorAll('input[required]')).filter(field => isElementVisible(field));
+      let hasErrors = false;
+      let missingFields = [];
+      
+      visibleRequiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          hasErrors = true;
+          const label = field.closest('.mb-3, .col-md-4, .col-md-3')?.querySelector('label')?.textContent || 
+                       field.placeholder || 
+                       field.name || 
+                       'Unknown field';
+          missingFields.push(label);
+          field.classList.add('is-invalid');
+        } else {
+          field.classList.remove('is-invalid');
+        }
+      });
+      
+      if (hasErrors) {
+        e.preventDefault();
+        
+        // Re-enable all fields if validation fails
+        allFormFields.forEach(field => {
+          field.disabled = false;
+          // Restore original name attributes
+          if (field.hasAttribute('data-original-name')) {
+            field.name = field.getAttribute('data-original-name');
+          }
+        });
+        
+        // Scroll to first error field
+        const firstErrorField = form.querySelector('input.is-invalid');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorField.focus();
+        }
+        
+        alert('Please fill in all required fields: ' + missingFields.join(', '));
+        return false;
+      }
+      
+      // Disable submit button to prevent double submission
+      const submitBtn = form.querySelector('input[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.value = 'Processing...';
+        
+        // Re-enable after 10 seconds as fallback
+        setTimeout(() => {
+          if (submitBtn.disabled) {
+            submitBtn.disabled = false;
+            submitBtn.value = 'Proceed to Summary';
+          }
+        }, 10000);
+      }
+      
+      console.log('Form validation passed, submitting with only visible fields...');
+    });
+    
+    // Add touch event handling for better mobile experience
+    const submitBtn = form.querySelector('input[type="submit"]');
+    if (submitBtn) {
+      submitBtn.addEventListener('touchstart', function() {
+        this.style.backgroundColor = '#198754';
+      });
+      
+      submitBtn.addEventListener('touchend', function() {
+        this.style.backgroundColor = '';
+      });
+    }
+  }
 }
 addEventListener('turbo:load', initRegistrationNewForm);
 addEventListener('DOMContentLoaded', initRegistrationNewForm);

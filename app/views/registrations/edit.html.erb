@@ -4,7 +4,7 @@
       <div class="card-body p-4">
         <h2 class="text-center mb-4 text-success fw-bold">Edit Registration</h2>
 
-        <%= form_with model: [@event, @registration], local: true do |f| %>
+        <%= form_with model: [@event, @registration], local: true, html: { id: "edit-registration-form" } do |f| %>
           <% if @registration.errors.any? %>
             <div class="alert alert-danger">
               <div class="d-flex align-items-start">
@@ -74,17 +74,17 @@
                     
                     <div class="mb-3">
                       <label class="form-label fw-semibold text-muted">First Name</label>
-                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "Enter first name", required: true %>
+                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "Enter first name" %>
                     </div>
                     
                     <div class="mb-3">
                       <label class="form-label fw-semibold text-muted">Last Name</label>
-                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Enter last name", required: true %>
+                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Enter last name" %>
                     </div>
                     
                     <div class="mb-2">
                       <label class="form-label fw-semibold text-muted">Date of Birth</label>
-                      <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                      <%= attendee_form.date_field :dob, class: "form-control dob-field" %>
                       <small class="text-muted age-display mt-1 d-block"></small>
                     </div>
                   </div>
@@ -92,13 +92,13 @@
                   <!-- Desktop: Row Layout -->
                   <div class="row g-2 align-items-start d-none d-md-flex">
                     <div class="col-md-4">
-                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name", required: true %>
+                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name" %>
                     </div>
                     <div class="col-md-4">
-                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name", required: true %>
+                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name" %>
                     </div>
                     <div class="col-md-3">
-                      <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                      <%= attendee_form.date_field :dob, class: "form-control dob-field" %>
                       <small class="text-muted age-display"></small>
                     </div>
                     <div class="col-md-1 text-end">
@@ -196,17 +196,17 @@ function initRegistrationEditForm() {
           
           <div class='mb-3'>
             <label class='form-label fw-semibold text-muted'>First Name</label>
-            <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='Enter first name' required>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='Enter first name'>
           </div>
           
           <div class='mb-3'>
             <label class='form-label fw-semibold text-muted'>Last Name</label>
-            <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Enter last name' required>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Enter last name'>
           </div>
           
           <div class='mb-2'>
             <label class='form-label fw-semibold text-muted'>Date of Birth</label>
-            <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required>
+            <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field'>
             <small class='text-muted age-display mt-1 d-block'></small>
           </div>
         </div>
@@ -214,13 +214,13 @@ function initRegistrationEditForm() {
         <!-- Desktop: Row Layout -->
         <div class='row g-2 align-items-start d-none d-md-flex'>
           <div class='col-md-4'>
-            <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='First Name' required>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='First Name'>
           </div>
           <div class='col-md-4'>
-            <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Last Name' required>
+            <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Last Name'>
           </div>
           <div class='col-md-3'>
-            <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required>
+            <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field'>
             <small class='text-muted age-display'></small>
           </div>
           <div class='col-md-1 text-end'>
@@ -233,6 +233,49 @@ function initRegistrationEditForm() {
       const dobField = row.querySelector('.dob-field');
       dobField.addEventListener('change', () => updateAgeDisplay(dobField));
       attendeeCount++;
+    });
+  }
+  
+  // Mobile validation fix - disable hidden fields before form submission
+  function disableHiddenFields() {
+    const isMobile = window.innerWidth < 768;
+    console.log('Disabling hidden fields, isMobile:', isMobile);
+    
+    const allFields = document.querySelectorAll('#edit-registration-form input[type="text"], #edit-registration-form input[type="email"], #edit-registration-form input[type="date"]');
+    
+    allFields.forEach(field => {
+      const fieldContainer = field.closest('.d-md-none, .d-none.d-md-flex');
+      
+      if (fieldContainer) {
+        if (fieldContainer.classList.contains('d-md-none')) {
+          // Mobile layout field - disable on desktop, remove name attribute so it's not submitted
+          if (!isMobile) {
+            field.setAttribute('data-original-name', field.name);
+            field.removeAttribute('name');
+            field.disabled = true;
+          }
+        } else if (fieldContainer.classList.contains('d-none') && fieldContainer.classList.contains('d-md-flex')) {
+          // Desktop layout field - disable on mobile, remove name attribute so it's not submitted
+          if (isMobile) {
+            field.setAttribute('data-original-name', field.name);
+            field.removeAttribute('name');
+            field.disabled = true;
+          }
+        }
+      }
+    });
+  }
+  
+  // Mobile form submission handling
+  const form = document.getElementById('edit-registration-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      console.log('Edit form submission detected');
+      
+      // Disable hidden fields before submission to prevent dual submission
+      disableHiddenFields();
+      
+      console.log('Form will now submit with only visible fields');
     });
   }
 }
