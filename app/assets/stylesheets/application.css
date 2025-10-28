@@ -878,3 +878,219 @@ code {
     margin-bottom: 2rem;
   }
 }
+
+/* Mobile Form Improvements */
+@media (max-width: 767.98px) {
+  /* Increase touch target sizes for mobile */
+  .form-control {
+    min-height: 48px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px 16px;
+  }
+
+  .btn {
+    min-height: 48px;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+
+  /* Better spacing for attendee rows on mobile */
+  .attendee-row {
+    margin-bottom: 1.5rem !important;
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef !important;
+  }
+
+  .attendee-row .form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 6px;
+  }
+
+  /* Remove button styling for mobile */
+  .remove-attendee-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px !important;
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7 !important;
+  }
+
+  .remove-attendee-btn:hover {
+    background-color: #fff0b3;
+    color: #dc3545 !important;
+  }
+
+  /* Add attendee button */
+  #add-attendee {
+    width: 100%;
+    margin-top: 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* Form headers */
+  .card-body h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-body h5 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Alert improvements */
+  .alert {
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  /* Age display */
+  .age-display {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+  /* Submit button */
+  .btn-lg {
+    padding: 16px 24px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+}
+
+/* General form improvements for all screen sizes */
+.form-control:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.attendee-row {
+  transition: all 0.3s ease;
+}
+
+.attendee-row:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Age calculation display */
+.age-display {
+  font-size: 12px;
+  color: #28a745;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* Registration Summary Mobile Improvements */
+@media (max-width: 767.98px) {
+  /* Navigation buttons */
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .d-flex.gap-2 {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .d-flex.gap-2 .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Download banner on mobile */
+  .alert .row {
+    text-align: center;
+  }
+
+  .alert .col-md-4 {
+    margin-top: 1rem;
+  }
+
+  /* Table improvements for mobile */
+  .table-responsive {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .table td, .table th {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
+  .table td:first-child {
+    font-weight: 600;
+  }
+
+  /* Badge improvements */
+  .badge {
+    font-size: 11px;
+    padding: 6px 12px !important;
+  }
+
+  /* Pricing summary on mobile */
+  .card.bg-light .row {
+    text-align: center;
+  }
+
+  .card.bg-light .col-md-6:first-child {
+    margin-bottom: 1rem;
+  }
+
+  .card.bg-light p {
+    font-size: 14px;
+  }
+
+  /* Alert improvements */
+  .alert .row.align-items-center {
+    text-align: center;
+  }
+
+  /* Payment status improvements */
+  .payment-status {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .payment-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .payment-actions .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+/* Additional table improvements for all screen sizes */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(40, 167, 69, 0.05);
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

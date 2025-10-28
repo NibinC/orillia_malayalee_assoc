@@ -8,8 +8,7 @@ class RegistrationsController < ApplicationController
   end
 
   def create
-    @registration = @event.registrations.new(registration_params)
-    @registration.status = "pending"
+    @registration = @event.registrations.new(registration_params.merge(status: "pending"))
 
     if @registration.save
       redirect_to event_registration_path(@event, @registration)

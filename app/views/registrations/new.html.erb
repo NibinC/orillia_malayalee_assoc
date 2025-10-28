@@ -7,17 +7,22 @@
         <%= form_with model: [@event, @registration], local: true do |f| %>
           <% if @registration.errors.any? %>
             <div class="alert alert-danger">
-              <strong>Please fix the following:</strong>
-              <ul class="mb-0">
-                <% @registration.errors.full_messages.each do |msg| %>
-                  <li><%= msg %></li>
-                <% end %>
-                <% @registration.attendees.each_with_index do |a,i| %>
-                  <% a.errors.full_messages.each do |msg| %>
-                    <li>Attendee <%= i+1 %>: <%= msg %></li>
-                  <% end %>
-                <% end %>
-              </ul>
+              <div class="d-flex align-items-start">
+                <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
+                <div>
+                  <strong>Please fix the following errors:</strong>
+                  <ul class="mb-0 mt-2">
+                    <% @registration.errors.full_messages.each do |msg| %>
+                      <li><%= msg %></li>
+                    <% end %>
+                    <% @registration.attendees.each_with_index do |a,i| %>
+                      <% a.errors.full_messages.each do |msg| %>
+                        <li><strong>Attendee <%= i+1 %>:</strong> <%= msg %></li>
+                      <% end %>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
             </div>
           <% end %>
 
@@ -43,30 +48,65 @@
                 Date of birth determines pricing automatically. Only name and DOB required.
               </small>
             </div>
-            <div class="row mb-2">
-              <div class="col-12 col-md-4"><small class="text-muted fw-semibold">First Name</small></div>
-              <div class="col-12 col-md-4"><small class="text-muted fw-semibold">Last Name</small></div>
-              <div class="col-12 col-md-3"><small class="text-muted fw-semibold">Date of Birth</small></div>
-              <div class="col-12 col-md-1"></div>
+            
+            <!-- Desktop Headers (hidden on mobile) -->
+            <div class="row mb-2 d-none d-md-flex">
+              <div class="col-md-4"><small class="text-muted fw-semibold">First Name</small></div>
+              <div class="col-md-4"><small class="text-muted fw-semibold">Last Name</small></div>
+              <div class="col-md-3"><small class="text-muted fw-semibold">Date of Birth</small></div>
+              <div class="col-md-1"></div>
             </div>
+            
             <div id="attendees">
               <%= f.fields_for :attendees do |attendee_form| %>
-                <div class="row g-2 mb-3 attendee-row align-items-start">
+                <div class="attendee-row mb-4 p-3 border rounded">
                   <%= attendee_form.hidden_field :id %>
-                  <div class="col-12 col-md-4">
-                    <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name", required: true %>
+                  <%= attendee_form.hidden_field :category, value: attendee_form.object.category || 'adult' %>
+                  <%= attendee_form.hidden_field :_destroy, value: 0, class: 'destroy-flag' %>
+                  
+                  <!-- Mobile: Stacked Layout -->
+                  <div class="d-md-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <strong class="text-primary">Attendee</strong>
+                      <button type="button" class="btn btn-link text-danger remove-attendee-btn p-0" title="Remove">
+                        <i class="fas fa-times fa-lg"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold text-muted">First Name</label>
+                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "Enter first name", required: true %>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold text-muted">Last Name</label>
+                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Enter last name", required: true %>
+                    </div>
+                    
+                    <div class="mb-2">
+                      <label class="form-label fw-semibold text-muted">Date of Birth</label>
+                      <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                      <small class="text-muted age-display mt-1 d-block"></small>
+                    </div>
                   </div>
-                  <div class="col-12 col-md-4">
-                    <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name", required: true %>
-                  </div>
-                  <div class="col-12 col-md-3">
-                    <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
-                    <small class="text-muted age-display"></small>
-                  </div>
-                  <div class="col-12 col-md-1 text-end">
-                    <%= attendee_form.hidden_field :category, value: attendee_form.object.category %>
-                    <%= attendee_form.hidden_field :_destroy, value: 0, class: 'destroy-flag' %>
-                    <button type="button" class="btn btn-link text-danger remove-attendee-btn p-0 mt-1" title="Remove"><i class="fas fa-times"></i></button>
+                  
+                  <!-- Desktop: Row Layout -->
+                  <div class="row g-2 align-items-start d-none d-md-flex">
+                    <div class="col-md-4">
+                      <%= attendee_form.text_field :first_name, class: "form-control", placeholder: "First Name", required: true %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= attendee_form.text_field :last_name, class: "form-control", placeholder: "Last Name", required: true %>
+                    </div>
+                    <div class="col-md-3">
+                      <%= attendee_form.date_field :dob, class: "form-control dob-field", required: true %>
+                      <small class="text-muted age-display"></small>
+                    </div>
+                    <div class="col-md-1 text-end">
+                      <button type="button" class="btn btn-link text-danger remove-attendee-btn p-0 mt-1" title="Remove">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               <% end %>
@@ -88,25 +128,86 @@ function initRegistrationNewForm(){
   let attendeeCount = document.querySelectorAll('#attendees .attendee-row').length;
 
   function calculateAge(dob){
-    const t=new Date(); const b=new Date(dob); let a=t.getFullYear()-b.getFullYear();
-    const m=t.getMonth()-b.getMonth(); if(m<0||(m===0&&t.getDate()<b.getDate())) a--; return a;
+    if (!dob) return 0;
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   }
+  
   function updateAgeAndCategory(dobField){
-    if(!dobField.value) return; const age=calculateAge(dobField.value); const cat=age<12?'minor':'adult';
-    const row=dobField.closest('.attendee-row');
-    const ageDisplay=row.querySelector('.age-display'); if(ageDisplay) ageDisplay.textContent=`Age: ${age} (${cat})`;
-    const catHidden=row.querySelector('input[name*="[category]"]'); if(catHidden) catHidden.value=cat;
+    if(!dobField.value) {
+      const row = dobField.closest('.attendee-row');
+      const ageDisplay = row.querySelector('.age-display');
+      if(ageDisplay) ageDisplay.textContent = '';
+      return;
+    }
+    
+    const age = calculateAge(dobField.value);
+    const category = age < 12 ? 'minor' : 'adult';
+    const row = dobField.closest('.attendee-row');
+    
+    const ageDisplay = row.querySelector('.age-display');
+    if(ageDisplay) {
+      ageDisplay.innerHTML = `<i class="fas fa-birthday-cake me-1"></i>Age: <strong>${age}</strong> <span class="badge bg-${category === 'adult' ? 'primary' : 'warning'} ms-1">${category}</span>`;
+    }
+    
+    const categoryHidden = row.querySelector('input[name*="[category]"]');
+    if(categoryHidden) categoryHidden.value = category;
   }
   document.querySelectorAll('#attendees .dob-field').forEach(df=>{ df.addEventListener('change',()=>updateAgeAndCategory(df)); if(df.value) updateAgeAndCategory(df); });
   document.getElementById('attendees').addEventListener('click',e=>{ const btn=e.target.closest('.remove-attendee-btn'); if(!btn) return; const row=btn.closest('.attendee-row'); const destroy=row.querySelector('input[name*="[_destroy]"]'); if(destroy){ destroy.value='1'; row.style.display='none'; } else { row.remove(); } });
-  const addBtn=document.getElementById('add-attendee'); if(addBtn && !addBtn.dataset.bound){ addBtn.dataset.bound='true'; addBtn.addEventListener('click',()=>{ const wrap=document.getElementById('attendees'); const row=document.createElement('div'); row.className='row g-2 mb-3 attendee-row align-items-start'; row.innerHTML=`
-    <div class='col-12 col-md-4'><input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='First Name' required></div>
-    <div class='col-12 col-md-4'><input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Last Name' required></div>
-    <div class='col-12 col-md-3'><input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required><small class='text-muted age-display'></small></div>
-    <div class='col-12 col-md-1 text-end'>
-      <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][category]' value='adult'>
-      <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][_destroy]' value='0'>
-      <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0 mt-1' title='Remove'><i class='fas fa-times'></i></button>
+  const addBtn=document.getElementById('add-attendee'); if(addBtn && !addBtn.dataset.bound){ addBtn.dataset.bound='true'; addBtn.addEventListener('click',()=>{ const wrap=document.getElementById('attendees'); const row=document.createElement('div'); row.className='attendee-row mb-4 p-3 border rounded'; row.innerHTML=`
+    <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][category]' value='adult'>
+    <input type='hidden' name='registration[attendees_attributes][${attendeeCount}][_destroy]' value='0' class='destroy-flag'>
+    
+    <!-- Mobile: Stacked Layout -->
+    <div class='d-md-none'>
+      <div class='d-flex justify-content-between align-items-center mb-2'>
+        <strong class='text-primary'>Attendee</strong>
+        <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0' title='Remove'>
+          <i class='fas fa-times fa-lg'></i>
+        </button>
+      </div>
+      
+      <div class='mb-3'>
+        <label class='form-label fw-semibold text-muted'>First Name</label>
+        <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='Enter first name' required>
+      </div>
+      
+      <div class='mb-3'>
+        <label class='form-label fw-semibold text-muted'>Last Name</label>
+        <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Enter last name' required>
+      </div>
+      
+      <div class='mb-2'>
+        <label class='form-label fw-semibold text-muted'>Date of Birth</label>
+        <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required>
+        <small class='text-muted age-display mt-1 d-block'></small>
+      </div>
+    </div>
+    
+    <!-- Desktop: Row Layout -->
+    <div class='row g-2 align-items-start d-none d-md-flex'>
+      <div class='col-md-4'>
+        <input type='text' name='registration[attendees_attributes][${attendeeCount}][first_name]' class='form-control' placeholder='First Name' required>
+      </div>
+      <div class='col-md-4'>
+        <input type='text' name='registration[attendees_attributes][${attendeeCount}][last_name]' class='form-control' placeholder='Last Name' required>
+      </div>
+      <div class='col-md-3'>
+        <input type='date' name='registration[attendees_attributes][${attendeeCount}][dob]' class='form-control dob-field' required>
+        <small class='text-muted age-display'></small>
+      </div>
+      <div class='col-md-1 text-end'>
+        <button type='button' class='btn btn-link text-danger remove-attendee-btn p-0 mt-1' title='Remove'>
+          <i class='fas fa-times'></i>
+        </button>
+      </div>
     </div>`; wrap.appendChild(row); const dob=row.querySelector('.dob-field'); dob.addEventListener('change',()=>updateAgeAndCategory(dob)); attendeeCount++; }); }
 }
 addEventListener('turbo:load', initRegistrationNewForm);

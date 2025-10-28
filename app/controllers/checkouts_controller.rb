@@ -35,13 +35,17 @@ class CheckoutsController < ApplicationController
       }
     end
 
+    # Use request base URL to handle both local development and production
+    base_url = "#{request.protocol}#{request.host_with_port}"
+    Rails.logger.info "Creating Stripe session with base_url: #{base_url}"
+    
     session = Stripe::Checkout::Session.create(
       mode: "payment",
       payment_method_types: ["card"],
       customer_email: registration.email,
       line_items: line_items,
-      success_url: "#{Rails.application.credentials.dig(:app, :url_host)}/checkouts/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url:  "#{Rails.application.credentials.dig(:app, :url_host)}/checkouts/cancel",
+      success_url: "#{base_url}/checkouts/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url:  "#{base_url}/checkouts/cancel",
       metadata: { registration_id: registration.id }
     )
 
