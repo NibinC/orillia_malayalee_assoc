@@ -64,7 +64,29 @@
         <% @events.each do |event| %>
           <div class="event-card mb-4">
             <div class="event-card-body">
-              <div class="row align-items-center">
+              <!-- Mobile: Stacked Layout -->
+              <div class="d-md-none">
+                <div class="event-info mb-3">
+                  <h5 class="event-title"><%= event.name %></h5>
+                  <p class="event-date">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <%= event.starts_at.strftime("%B %d, %Y at %I:%M %p") %>
+                  </p>
+                  <div class="event-pricing mb-3">
+                    <span class="price-badge adult-price">Adult: $<%= sprintf("%.2f", event.adult_price_cents/100.0) %></span>
+                    <span class="price-badge minor-price">Minor: $<%= sprintf("%.2f", event.minor_price_cents/100.0) %></span>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <%= link_to new_event_registration_path(event), class: "btn-register w-100" do %>
+                    <span class="btn-text">Register Now</span>
+                    <i class="fas fa-arrow-right ms-2"></i>
+                  <% end %>
+                </div>
+              </div>
+              
+              <!-- Desktop: Row Layout -->
+              <div class="row align-items-center d-none d-md-flex">
                 <div class="col-md-8">
                   <div class="event-info">
                     <h5 class="event-title"><%= event.name %></h5>
@@ -78,7 +100,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="text-md-end">
+                <div class="col-md-4 text-end">
                   <%= link_to new_event_registration_path(event), class: "btn-register" do %>
                     <span class="btn-text">Register Now</span>
                     <i class="fas fa-arrow-right ms-2"></i>

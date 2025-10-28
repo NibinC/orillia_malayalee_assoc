@@ -1094,3 +1094,201 @@ code {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* Home Page Mobile Improvements */
+@media (max-width: 767.98px) {
+  /* Event card mobile improvements */
+  .event-card {
+    margin-bottom: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .event-card-body {
+    padding: 1.5rem;
+  }
+
+  .event-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .event-date {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .event-pricing {
+    margin-bottom: 1.5rem;
+  }
+
+  .price-badge {
+    display: block;
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .price-badge:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Register button mobile improvements */
+  .btn-register {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    justify-content: center;
+    min-height: 56px;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+  }
+
+  .btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.35);
+  }
+
+  /* Hero section mobile improvements */
+  .hero-landscape-section {
+    padding: 2rem 0;
+  }
+
+  .hero-content {
+    padding: 1rem;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-badges {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .hero-badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    margin: 0;
+  }
+
+  /* Values section mobile improvements */
+  .values-section {
+    padding: 2rem 0;
+  }
+
+  .values-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .value-tile {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .value-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Events section mobile improvements */
+  .events-section {
+    padding: 2.5rem 0;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Footer mobile improvements */
+  .footer-section {
+    padding: 2.5rem 0 1.5rem;
+  }
+
+  .footer-title {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-description {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-heading {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .contact-item {
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .footer-badges {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .footer-badge {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .footer-copyright {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .social-link {
+    font-size: 1.5rem;
+  }
+}
+
+/* Improve spacing and touch targets */
+@media (max-width: 575.98px) {
+  .event-card-body {
+    padding: 1.25rem;
+  }
+
+  .event-title {
+    font-size: 1.25rem;
+  }
+
+  .btn-register {
+    font-size: 0.95rem;
+    padding: 0.875rem 1.25rem;
+  }
+
+  .price-badge {
+    font-size: 0.85rem;
+    padding: 0.625rem 0.875rem;
+  }
+}
